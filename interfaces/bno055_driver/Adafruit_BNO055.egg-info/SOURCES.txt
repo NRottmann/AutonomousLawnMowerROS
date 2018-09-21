@@ -1,0 +1,8 @@
+setup.py
+Adafruit_BNO055/BNO055.py
+Adafruit_BNO055/__init__.py
+Adafruit_BNO055.egg-info/PKG-INFO
+Adafruit_BNO055.egg-info/SOURCES.txt
+Adafruit_BNO055.egg-info/dependency_links.txt
+Adafruit_BNO055.egg-info/requires.txt
+Adafruit_BNO055.egg-info/top_level.txt

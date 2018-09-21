@@ -1,0 +1,12 @@
+<launch>
+
+  <node pkg="interfaces" name="motor" type="motorInterface" output="screen">
+	<rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  <node pkg="control" name="teleop" type="teleop" output="screen">
+	<rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  <!-- Start rosbag to store data -->
+  <node pkg="rosbag" name="test_bag" type="record" 
+		args="-o ../bag_files/robotData /odometryData"/>
+</launch>

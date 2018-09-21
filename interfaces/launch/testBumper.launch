@@ -1,0 +1,10 @@
+<launch>
+  <node pkg="interfaces" name="imu" type="imuInterface.py">
+    <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+
+  <node pkg="interfaces" name="bumper" type="bumperInterface" output="screen">
+	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+
+</launch>

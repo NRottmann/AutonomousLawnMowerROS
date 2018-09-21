@@ -1,0 +1,7 @@
+<launch>
+
+  <node pkg="interfaces" name="sensor" type="sensorInterface" output="screen">
+	<rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+
+</launch>

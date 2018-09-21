@@ -1,0 +1,8 @@
+<launch>
+  <node pkg="interfaces" name="imu" type="imuInterface.py">
+    <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  <!-- Start rosbag to store data -->
+  <node pkg="rosbag" name="test_bag" type="record"
+		args="-o ../bag_files/robotData /imuData"/>
+</launch>

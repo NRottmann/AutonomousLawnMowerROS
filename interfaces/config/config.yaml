@@ -1,0 +1,32 @@
+robot:
+ d: 0.215             # diameter of a wheel, in m (float)
+ L: 0.1788            # half of the wheelbase, in m (float)
+ nHall: 703.3         # number of Ticks counted by Hall Sensor A per round of the wheel, (float)
+ maxSpeed: 1.0        # maximum speed of the wheels which can be achieved by the mower, in m/s (float)
+ maxTicksSpeed: 255   # Maximum Number of steps in which the speed can be divided, 0 = 0 m/s, maxTickSpeed = maxSpeed
+system:
+ frequency: 20        # frequency of the ROS System in Hz
+ frequencyIMU: 100    # frequency of the IMU (see data sheet)
+ frequencyLoc: 200    # frequency of the localization, should be faster then the IMU frequency
+control:
+ vChange: 0.05        # Change of velocity per time step
+ wChange: 0.05        # Change of angular velocity per time step
+ bumperTreshold: 3.0  # Treshold for Bumper
+ sensorTreshold: 1    # Treshold for sensor until a detection is assumed
+ v0: 0.3              # Speed Limit used by the controller
+ w0: 0.6              # Angular velocity limit used by the controller
+ Pv: 1                # Proportional control value for the velocity
+ Pw: 1
+ Dv: 1                # Derivatiove control value for the velocity
+ Dw: 1
+filter:
+ a1: 0.0072           # Parameter for odometry covariance
+ a2: 0.0017
+ a3: 0.001
+ a4: 0.0003
+ nx: 0.1134           # Parameter of the Allan deviation for calculating the covariance matrix of the IMU
+ bx: 4.3346
+ ny: 0.1305
+ by: 2.85
+ nphi: 2.11
+ bphi: 0.3139

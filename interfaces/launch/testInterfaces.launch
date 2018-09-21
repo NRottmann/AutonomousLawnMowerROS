@@ -1,0 +1,14 @@
+<launch>
+
+  <!-- Start python node first, to besure nothing went wrong! -->
+  <node pkg="interfaces" name="imu" type="imuInterface.py">
+    <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  <node pkg="interfaces" name="test" type="testInterfaces" output="screen"/>
+  <node pkg="interfaces" name="motor" type="motorInterface" output="screen">
+    <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  <node pkg="interfaces" name="sensor" type="sensorInterface" output="screen">
+    <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+</launch>

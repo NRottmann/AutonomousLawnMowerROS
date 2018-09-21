@@ -1,0 +1,5 @@
+<launch>
+
+  <node pkg="interfaces" name="i2c" type="i2cInterface" output="screen"/>
+
+</launch>
