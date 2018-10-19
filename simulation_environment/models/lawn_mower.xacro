@@ -1,0 +1,118 @@
+<?xml version='1.0'?>
+
+<!-- Name the robot -->
+<robot name="lawn_mower" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower.gazebo" />
+  <xacro:include filename="$(find simulation_environment)/models/materials.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/macros.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/parameter.xacro" />
+
+  <!-- Define the chassis -->
+  <link name='chassis'>
+    <pose>$0 0 0 0 0 0</pose>
+    <!-- Define inertial system for the chassis -->
+    <inertial>
+      <!-- mass [kg], origin [m], inertia [kg m*m] -->
+      <mass value="${m_chassis}"/>
+      <xacro:box_inertia m="${m_chassis}" x="${x_chassis}" y="${y_chassis}" z="${z_chassis}"/>
+    </inertial>
+    <!-- Define collision sorrounding box -->
+    <collision name='collision'>
+      <origin xyz="0 0 0" rpy=" 0 0 3.1415"/>
+      <geometry>
+        <box size="${x_chassis} ${y_chassis} ${z_chassis}"/>
+      </geometry>
+    </collision>
+    <!-- Define visualization structure -->
+    <visual name='chassis_visual'>
+	  <origin xyz="0 0 0" rpy=" 0 0 3.1415"/>
+      <geometry>
+        <box size="${x_chassis} ${y_chassis} ${z_chassis}"/>
+      </geometry>
+    </visual>
+
+    <!-- Add the caster wheel! Here we simply assume complete slippage, thus we do not require that it rotates! -->
+    <collision name='caster_collision'>
+      <origin xyz="${-(r_wheel/2)+x_chassis/2} 0 ${-z_chassis/2}" rpy=" 0 0 0"/>
+      <geometry>
+        <sphere radius="${r_wheel/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <visual name='caster_visual'>
+      <origin xyz="${-(r_wheel/2)+x_chassis/2} 0 ${-z_chassis/2}" rpy=" 0 0 0"/>
+      <geometry>
+        <sphere radius="${r_wheel/2}"/>
+      </geometry>
+    </visual>
+  </link>
+
+  <!-- Add the wheels for the robot -->
+  <link name="left_wheel">
+    <collision name="collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </collision>
+    <visual name="left_wheel_visual">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="${m_wheel}"/>
+      <xacro:cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+    </inertial>
+  </link>
+
+  <link name="right_wheel">
+    <collision name="collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </collision>
+    <visual name="right_wheel_visual">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="${m_wheel}"/>
+      <xacro:cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+    </inertial>
+  </link>
+
+  <!-- TODO: Check if this joint type is correct?-->
+  <joint type="continuous" name="left_wheel_hinge">
+    <origin xyz="${-x_chassis/4} ${y_chassis/2+h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <child link="left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+  <joint type="continuous" name="right_wheel_hinge">
+    <origin xyz="${-x_chassis/4} ${-y_chassis/2-h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <child link="right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+  </joint>
+
+</robot>
