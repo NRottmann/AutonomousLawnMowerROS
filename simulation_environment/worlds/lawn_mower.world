@@ -1,11 +1,21 @@
 <?xml version="1.0" ?>
-<sdf version="1.4">
+<sdf version="1.5">
   <!-- We use a custom world for the robot so that the camera angle is launched correctly -->
 
   <world name="default">
-
+	  
+	<physics name="ode_70iters" type="ode">
+      <real_time_update_rate>1500</real_time_update_rate>
+      <ode>
+        <solver>
+          <type>quick</type>
+          <iters>70</iters>
+        </solver>
+      </ode>
+    </physics>
+	  
     <include>
-      <uri>model://ground_plane</uri>
+      <uri>model://garden</uri>
     </include>
 
     <!-- Global light source -->
