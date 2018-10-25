@@ -12,6 +12,13 @@
 		<diameter>${r_wheel*2}</diameter>
 		<axisDistance>${L_wheel}</axisDistance>
 	  </plugin>
+  </gazebo> 
+  
+  <gazebo>
+	  <plugin name="chlorophyllSensor_plugin" filename="libchlorophyllSensor_plugin.so">
+		<x_pos>${x_sensor}</x_pos>
+		<y_pos>${y_sensor}</y_pos>
+	  </plugin>
   </gazebo>
 
   <gazebo reference="chassis">

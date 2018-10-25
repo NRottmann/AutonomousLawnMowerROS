@@ -104,12 +104,6 @@ namespace gazebo
       // Configure joint motor, TODO: Get realistic Moment M = (U*I)/(2*pi*n)
       this->jointLeft->SetParam("fmax", 0, torque);
       this->jointRight->SetParam("fmax", 0,torque);
-      
-      /*//Setup a P-controller, with a gain of 100.
-	  this->pid = common::PID(10.0, 0.0, 0.0);
-	  // Apply the P-controller to the joints.
-      this->model->GetJointController()->SetVelocityPID(this->jointLeft->GetScopedName(), this->pid);
-      this->model->GetJointController()->SetVelocityPID(this->jointRight->GetScopedName(), this->pid);*/
 
 	  // Make sure the ROS node for Gazebo has already been initialized  
 	  if (!ros::isInitialized())
@@ -121,8 +115,8 @@ namespace gazebo
       
       // Reset the ros node name and initialize subscriber and publisher
       this->rosNode.reset(new ros::NodeHandle(""));
-      rosPub = this->rosNode->advertise<interfaces::Odometry>("odometryData", 1000);
-      rosSub = this->rosNode->subscribe("controlData", 1000, &RobotControl::ROSCallback, this);
+      rosPub = this->rosNode->advertise<interfaces::Odometry>("odometryData", 10);
+      rosSub = this->rosNode->subscribe("controlData", 10, &RobotControl::ROSCallback, this);
       
       // Listen to the update event. This event is broadcast every
       // simulation iteration.
@@ -132,32 +126,27 @@ namespace gazebo
 
     // Called by the world update start event
     public: void OnUpdate()
-    {
-	  // this->model->GetJointController()->Update();
-	  // Get position
-	  double posLeft = this->jointLeft->GetAngle(0).Radian();
-	  double posRight = this->jointRight->GetAngle(0).Radian();
-      // Publish to rostopic odometryData
-      interfaces::Odometry msg;
-      msg.l_R = radius * (posRight - posRightOld);
-      msg.l_L = radius * (posLeft - posLeftOld);
-      posRightOld = posRight;
-      posLeftOld = posLeft;
-      this->rosPub.publish(msg);   
+    {  
     }
     
     public: void ROSCallback(const interfaces::Control& msg)
 	{
+	  // Get desired velocities
 	  double velRight = (msg.v + axisDistance * msg.w) / radius;
       double velLeft = (msg.v - axisDistance * msg.w) / radius;
-      //ROS_INFO("%f", this->velRight);
-      //ROS_INFO("%f", this->velLeft);
       // Set velocities
 	  this->jointRight->SetParam("vel", 0, velRight);
 	  this->jointLeft->SetParam("vel", 0, velLeft);
-      // Set the joint's target velocity
-	  /*this->model->GetJointController()->SetVelocityTarget(this->jointLeft->GetScopedName(), 0.1);
-	  this->model->GetJointController()->SetVelocityTarget(this->jointRight->GetScopedName(), 0.1);*/
+	  // Get position of the wheels
+	  double posLeft = this->jointLeft->GetAngle(0).Radian();
+	  double posRight = this->jointRight->GetAngle(0).Radian();
+      // Publish to rostopic odometryData
+      interfaces::Odometry msg_out;
+      msg_out.l_R = radius * (posRight - posRightOld);
+      msg_out.l_L = radius * (posLeft - posLeftOld);
+      posRightOld = posRight;
+      posLeftOld = posLeft;
+      this->rosPub.publish(msg_out);   
 	}
 
   };

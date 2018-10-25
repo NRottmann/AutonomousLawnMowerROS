@@ -21,14 +21,8 @@
   <!-- TODO: Why are we doing this? -->
   <param name="simulation_environment" command="$(find xacro)/xacro --inorder '$(find simulation_environment)/models/lawn_mower.xacro'"/>
   
-  <!-- Spawn the robot -->
+  <!-- Spawn the robot. TODO: Why not in the world file? -->
   <node name="lawn_mower_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
    args="-urdf -param simulation_environment -model lawn_mower" />
-
-  <!-- Let the robot drive a circle -->
-  <node pkg="simulation_environment" name="vel_cmd" type="vel_cmd" output="screen"/>
-
-
-
 
 </launch>

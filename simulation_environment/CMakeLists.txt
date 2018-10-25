@@ -26,12 +26,10 @@ include_directories(
   ${GAZEBO_INCLUDE_DIRS}
 )
 
-add_executable(vel_cmd src/vel_cmd.cpp)
-target_link_libraries(vel_cmd ${catkin_LIBRARIES})
-add_dependencies(vel_cmd ${catkin_EXPORTED_TARGETS})
-
 add_library(odometry_plugin SHARED src/odometry_plugin.cpp)
 target_link_libraries(odometry_plugin ${GAZEBO_LIBRARIES})
+add_library(chlorophyllSensor_plugin SHARED src/chlorophyllSensor_plugin.cpp)
+target_link_libraries(chlorophyllSensor_plugin ${GAZEBO_LIBRARIES})
 
 # Gazebo set flags
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")
