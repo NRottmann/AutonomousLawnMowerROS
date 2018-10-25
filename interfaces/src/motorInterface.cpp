@@ -234,11 +234,11 @@ interfaces::Odometry OdometryEvaluation::getOdometry()
 {
 	interfaces::Odometry msg;	
 	msg.l_R = getDistance(actPosRight, pastPosRight);
-	msg.l_L = getDistance(actPosLeft, pastPosLeft);
+	msg.l_L = -getDistance(actPosLeft, pastPosLeft);
 	msg.i_R = currentRight;
 	msg.i_L = currentLeft;
 	msg.v_R = vR;
-	msg.v_L = vL;
+	msg.v_L = -vL;
 	msg.rawR = actPosRight;
 	msg.rawL = actPosLeft;
 

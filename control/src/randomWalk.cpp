@@ -86,9 +86,9 @@ interfaces::Control Listener::getMotorCom()
 	if (msg_sensor.r1 > 80) { S2mess = 1; }
 
 	// Debug
-	ROS_INFO("meanS1: %f", meanS1);
-	ROS_INFO("meanS2: %f", meanS2);
-	ROS_INFO("mode: %i", mode);
+	// ROS_INFO("meanS1: %f", meanS1);
+	// ROS_INFO("meanS2: %f", meanS2);
+	// ROS_INFO("mode: %i", mode);
 
 	// Move forward
 	if (mode == 0) 
@@ -163,10 +163,10 @@ interfaces::Control Listener::getMotorCom()
 			msg_out.v = 0;
 			if (angleDiff > 0)
 			{
-				angleDiff = angleDiff - min(angleDiff, (msg_odometry.l_R + msg_odometry.l_L) / (2 * L));
+				angleDiff = angleDiff - min(angleDiff, (msg_odometry.l_R - msg_odometry.l_L) / (2 * L));
 			}
 			else {
-				angleDiff = angleDiff + min(-1*angleDiff, -1*(msg_odometry.l_R + msg_odometry.l_L) / (2 * L));
+				angleDiff = angleDiff + min(-1*angleDiff, -1*(msg_odometry.l_R - msg_odometry.l_L) / (2 * L));
 			}
 			ROS_INFO("angleDiff: %f", angleDiff);
 			//angleDiff = angleDiff - msg_out.w;
