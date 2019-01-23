@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <launch>
 
-  <!-- Loading the map -->
+  <!-- Define default parameters -->
   <arg name="world" default="empty"/> 
   <arg name="paused" default="false"/>
   <arg name="use_sim_time" default="true"/>
   <arg name="gui" default="true"/>
   <arg name="headless" default="false"/>
   <arg name="debug" default="false"/>
+  <arg name="model_name" default="lawn_mower.xacro"/>
   
+  <!-- Loading the map -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find simulation_environment)/worlds/lawn_mower.world"/>
     <arg name="paused" value="$(arg paused)"/>
@@ -18,11 +20,14 @@
     <arg name="debug" value="$(arg debug)"/>
   </include>
 
-  <!-- TODO: Why are we doing this? -->
-  <param name="simulation_environment" command="$(find xacro)/xacro --inorder '$(find simulation_environment)/models/lawn_mower.xacro'"/>
+  <!-- Here the sdf files are generated from the xacros -->
+  <param name="simulation_environment" command="$(find xacro)/xacro --inorder '$(find simulation_environment)/models/lawn_mower/$(arg model_name)'"/>
   
   <!-- Spawn the robot. TODO: Why not in the world file? -->
   <node name="lawn_mower_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
    args="-urdf -param simulation_environment -model lawn_mower" />
+   
+   <!-- Launch ROS node to transform image data to chlorophyll message -->
+   <node pkg="simulation_environment" name="sensor_transform" type="sensor_transform" output="screen"/>
 
 </launch>

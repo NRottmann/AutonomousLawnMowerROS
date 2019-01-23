@@ -7,29 +7,41 @@ find_package(catkin REQUIRED COMPONENTS
   gazebo_ros
   std_msgs
   geometry_msgs
+  sensor_msgs
   interfaces
   message_generation
 )
 
-# Depending on system install of Gazebo
-find_package(gazebo REQUIRED)
-
+## Declare a catkin package
 catkin_package(
-   CATKIN_DEPENDS roscpp rospy std_msgs geometry_msgs interfaces message_runtime
+  CATKIN_DEPENDS
+    std_msgs
+    geometry_msgs
+    sensor_msgs
+    interfaces
+    message_runtime
 )
 
+# Depending on system install of Gazebo
+find_package(gazebo REQUIRED)
 link_directories(${GAZEBO_LIBRARY_DIRS})
-
 include_directories(
   ${catkin_INCLUDE_DIRS}
   ${src}
   ${GAZEBO_INCLUDE_DIRS}
 )
 
+# Gazebo Plugins
 add_library(odometry_plugin SHARED src/odometry_plugin.cpp)
-target_link_libraries(odometry_plugin ${GAZEBO_LIBRARIES})
 add_library(chlorophyllSensor_plugin SHARED src/chlorophyllSensor_plugin.cpp)
+
+target_link_libraries(odometry_plugin ${GAZEBO_LIBRARIES})
 target_link_libraries(chlorophyllSensor_plugin ${GAZEBO_LIBRARIES})
+
+# ROS node
+add_executable(sensor_transform src/sensor_transform.cpp)
+target_link_libraries(sensor_transform ${catkin_LIBRARIES})
+add_dependencies(sensor_transform ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
 
 # Gazebo set flags
 list(APPEND CMAKE_CXX_FLAGS "${GAZEBO_CXX_FLAGS}")

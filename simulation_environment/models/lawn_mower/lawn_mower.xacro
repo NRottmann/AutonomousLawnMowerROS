@@ -3,10 +3,10 @@
 <!-- Name the robot -->
 <robot name="lawn_mower" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:include filename="$(find simulation_environment)/models/lawn_mower.gazebo" />
-  <xacro:include filename="$(find simulation_environment)/models/materials.xacro" />
-  <xacro:include filename="$(find simulation_environment)/models/macros.xacro" />
-  <xacro:include filename="$(find simulation_environment)/models/parameter.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/lawn_mower.gazebo" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/materials.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/macros.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/parameter.xacro" />
 
   <!-- Define the chassis -->
   <link name='chassis'>
@@ -55,21 +55,29 @@
         <sphere radius="${r_wheel/2}"/>
       </geometry>
     </visual>
-    
-    <!-- Add visual for the chlorophyll sensors. TODO: Change color, make transparent and make a cone -->
-    <visual name='sensor_visual'>
-      <origin xyz="${x_sensor} ${y_sensor} ${-(r_wheel/2+z_chassis/2)/2}" rpy=" 0 0 0"/>
-      <geometry>
-        <cylinder radius="${r_sensor}" length="${r_wheel/2+z_chassis/2}"/>
-      </geometry>
-    </visual>
-    <visual name='sensor_visual'>
-      <origin xyz="${x_sensor} ${-y_sensor} ${-(r_wheel/2+z_chassis/2)/2}" rpy=" 0 0 0"/>
-      <geometry>
-        <cylinder radius="${r_sensor}" length="${r_wheel/2+z_chassis/2}"/>
-      </geometry>
-    </visual>
   </link>
+  
+  <!-- Chlorophyllsensors -->
+  <link name="camera_link_1">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_1" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="${y_chassis/2-l_camera/2}" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_1"/>
+  </joint>
+  
+  <link name="camera_link_2">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_2" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="0" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_2"/>
+  </joint>
+  
+  <link name="camera_link_3">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_3" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="${-y_chassis/2+l_camera/2}" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_3"/>
+  </joint>
 
   <!-- Add the wheels for the robot -->
   <link name="left_wheel">

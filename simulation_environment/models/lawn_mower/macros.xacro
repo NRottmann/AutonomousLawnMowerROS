@@ -1,0 +1,92 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:macro name="box_inertia" params="m x y z">
+      <inertia  
+        ixx="${m*(y*y+z*z)/12}" ixy = "0" ixz = "0"
+        iyy="${m*(x*x+z*z)/12}" iyz = "0"
+        izz="${m*(x*x+z*z)/12}"
+      />
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertia" params="m r h">
+    <inertia  
+      ixx="${m*(3*r*r+h*h)/12}" ixy = "0" ixz = "0"
+      iyy="${m*(3*r*r+h*h)/12}" iyz = "0"
+      izz="${m*r*r/2}"
+    />
+  </xacro:macro>
+  
+  <xacro:macro name="sensor_link_macro" params="l">
+	<collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+		<box size="${l} ${l} ${l}"/>
+      </geometry>
+    </collision>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+		<box size="${l} ${l} ${l}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </xacro:macro>
+  
+  <xacro:macro name="sensor_joint_macro" params="x y z l parent_link child_link">
+	<axis xyz="0 0 0" />
+    <origin xyz="${x} ${y} ${z}" rpy="0 1.57 0"/>
+    <parent link="${parent_link}"/>
+    <child link="${child_link}"/>
+  </xacro:macro>
+  
+  <xacro:macro name="sensor_plugin_macro" params="name topic_name info_name frame_name">
+	<sensor type="camera" name="${name}">
+      <update_rate>30.0</update_rate>
+      <visualize>true</visualize>
+      <camera name="head">
+        <horizontal_fov>1.345</horizontal_fov>
+        <image>
+          <width>1</width>
+          <height>1</height>
+          <format>R8G8B8</format>
+        </image>
+        <clip>
+          <near>0.02</near>
+          <far>300</far>
+        </clip>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.007</stddev>
+        </noise>
+      </camera>
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <alwaysOn>true</alwaysOn>
+        <updateRate>0.0</updateRate>
+        <cameraName>${name}</cameraName>
+        <imageTopicName>${topic_name}</imageTopicName>
+        <cameraInfoTopicName>${info_name}</cameraInfoTopicName>
+        <frameName>${frame_name}</frameName>
+        <hackBaseline>0.07</hackBaseline>
+        <distortionK1>0.0</distortionK1>
+        <distortionK2>0.0</distortionK2>
+        <distortionK3>0.0</distortionK3>
+        <distortionT1>0.0</distortionT1>
+        <distortionT2>0.0</distortionT2>
+      </plugin>
+    </sensor>
+  </xacro:macro>
+  
+
+  
+
+
+
+
+
+</robot>

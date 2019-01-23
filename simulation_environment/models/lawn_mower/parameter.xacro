@@ -19,6 +19,9 @@
   <!-- Parameter for the chlorophyll sensors -->
   <xacro:property name="r_sensor" value="0.01" /> 
   <xacro:property name="x_sensor" value="${x_chassis/2 - r_sensor}" /> 
-  <xacro:property name="y_sensor" value="${y_chassis/2 - r_sensor}" /> 
+  <xacro:property name="y_sensor" value="${y_chassis/2 - r_sensor}" />
+  
+  <!-- Camera parameter -->
+  <xacro:property name="l_camera" value="0.02" /> 
 
 </robot>
