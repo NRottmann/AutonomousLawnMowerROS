@@ -85,16 +85,18 @@ interfaces::Control Listener::getMotorCom()
 	if (msg_sensor.l1 > 80) { S1mess = 1; }
 	if (msg_sensor.r1 > 80) { S2mess = 1; }
 
+	// Update mean sensor values
+	meanS1 = meanS1 * 0.9 + S1mess * 0.1f;
+	meanS2 = meanS2 * 0.9 + S2mess * 0.1f;
+
 	// Debug
-	ROS_INFO("meanS1: %f", meanS1);
-	ROS_INFO("meanS2: %f", meanS2);
-	ROS_INFO("mode: %i", mode);
+	// ROS_INFO("meanS1: %f", meanS1);
+	// ROS_INFO("meanS2: %f", meanS2);
+	// ROS_INFO("mode: %i", mode);
 
 	// Move forward
 	if (mode == 0) 
 	{
-	    	meanS1 = meanS1*0.9 + S1mess*0.1f;
-	    	meanS2 = meanS2*0.9 + S2mess*0.1f;
 		if (msg_bumper.bump) {
 			ROS_INFO("msg_bumper.phi %f",msg_bumper.phi);
 			if (msg_bumper.phi > 0){
@@ -108,7 +110,7 @@ interfaces::Control Listener::getMotorCom()
 			backcounter = 0;
 			msg_out.v = 0;
 			msg_out.w = 0;
-	        	mode = 1; // Move back
+	        mode = 1;			// Move back
 			if (angleDiff > 0)
 				ROS_INFO("Move back for left BUMPER rotation");
 			else
@@ -133,8 +135,6 @@ interfaces::Control Listener::getMotorCom()
 	// Move back
 	if (mode == 1)
 	{
-    		meanS1 = meanS1*0.9f + S1mess*0.1f;
-    		meanS2 = meanS2*0.9f + S2mess*0.1f;
     		if ((meanS1 > 0.8f && meanS2 > 0.8f) && (backcounter++ > 15))
 		{
    	     		msg_out.v = 0;
@@ -150,8 +150,6 @@ interfaces::Control Listener::getMotorCom()
 	// Rotate 
 	if (mode == 2) 
 	{
-    		meanS1 = meanS1*0.9f + S1mess*0.1f;
-    		meanS2 = meanS2*0.9f + S2mess*0.1f;
 		if (fabs(angleDiff) < 0.1f) 
 		{
 			msg_out.w = 0;
