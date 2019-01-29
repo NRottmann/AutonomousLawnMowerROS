@@ -1,0 +1,40 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/parameter.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/macros.xacro" />
+  
+  <!-- Odometry plugin to get messages from ROS and publish messages and control the motors of the wheels -->
+  <gazebo>
+	  <plugin name="odometry_plugin" filename="libodometry_plugin.so">
+		<leftJoint>left_wheel_hinge</leftJoint>
+		<rightJoint>right_wheel_hinge</rightJoint>
+		<torque>${torque_wheel}</torque>
+		<diameter>${r_wheel*2}</diameter>
+		<axisDistance>${L_wheel}</axisDistance>
+	  </plugin>
+  </gazebo> 
+  
+  <!-- Camera sensor plugins -->
+  <gazebo reference="camera_link_1">
+    <xacro:sensor_plugin_macro name="camera_1" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_1"/>
+  </gazebo>
+  
+  <gazebo reference="camera_link_2">
+    <xacro:sensor_plugin_macro name="camera_2" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_2"/>
+  </gazebo>
+  
+  <gazebo reference="camera_link_3">
+    <xacro:sensor_plugin_macro name="camera_3" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_3"/>
+  </gazebo>
+  
+  <!-- Changing the colors -->
+  <gazebo>
+	  <plugin name="chlorophyllSensor_plugin" filename="libchlorophyllSensor_plugin.so"/>
+  </gazebo> 
+ 
+  <!-- Chassis color -->
+  <gazebo reference="chassis">
+      <material>Gazebo/Orange</material>
+  </gazebo>
+</robot>

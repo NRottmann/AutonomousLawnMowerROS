@@ -101,8 +101,8 @@ void Listener::callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in)
 	if (fabs(msg_new.l_R) > 0.2)
 		msg_new.l_R = 0.0f;
 	Vector2f deltaOdo;															// holds ds and dphi for the odometry
-	deltaOdo << ((msg_new.l_R - msg_new.l_L) / 2), 
-				((msg_new.l_R + msg_new.l_L) / (2 * L));
+	deltaOdo << ((msg_new.l_R + msg_new.l_L) / 2), 
+				((msg_new.l_R - msg_new.l_L) / (2 * L));
 	MatrixXf T(3, 2);
 	T << cosf(p0(2)), 0,
 		 sinf(p0(2)), 0,

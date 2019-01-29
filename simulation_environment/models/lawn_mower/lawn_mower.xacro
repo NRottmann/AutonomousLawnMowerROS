@@ -1,0 +1,164 @@
+<?xml version='1.0'?>
+
+<!-- Name the robot -->
+<robot name="lawn_mower" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/lawn_mower.gazebo" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/materials.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/macros.xacro" />
+  <xacro:include filename="$(find simulation_environment)/models/lawn_mower/parameter.xacro" />
+
+  <!-- Define the chassis -->
+  <link name='chassis'>
+    <pose>0 0 0 0 0 0</pose>
+    <!-- Define inertial system for the chassis -->
+    <inertial>
+      <!-- mass [kg], origin [m], inertia [kg m*m] -->
+      <mass value="${m_chassis}"/>
+      <xacro:box_inertia m="${m_chassis}" x="${x_chassis}" y="${y_chassis}" z="${z_chassis}"/>
+    </inertial>
+    <!-- Define collision sorrounding box -->
+    <collision name='collision'>
+      <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="${x_chassis} ${y_chassis} ${z_chassis}"/>
+      </geometry>
+    </collision>
+    <!-- Define visualization structure -->
+    <visual name='chassis_visual'>
+	  <origin xyz="0 0 0" rpy=" 0 0 0"/>
+      <geometry>
+        <box size="${x_chassis} ${y_chassis} ${z_chassis}"/>
+      </geometry>
+    </visual>
+
+    <!-- Add the caster wheel! Here we simply assume complete slippage, thus we do not require that it rotates! -->
+    <collision name='caster_collision'>
+      <origin xyz="${-(r_wheel/2)+x_chassis/2} 0 ${-z_chassis/2}" rpy=" 0 0 0"/>
+      <geometry>
+        <sphere radius="${r_wheel/2}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <visual name='caster_visual'>
+      <origin xyz="${-(r_wheel/2)+x_chassis/2} 0 ${-z_chassis/2}" rpy=" 0 0 0"/>
+      <geometry>
+        <sphere radius="${r_wheel/2}"/>
+      </geometry>
+    </visual>
+  </link>
+  
+  <!-- Chlorophyllsensors -->
+  <link name="camera_link_1">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_1" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="${y_chassis/2-l_camera/2}" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_1"/>
+  </joint>
+  
+  <link name="camera_link_2">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_2" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="0" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_2"/>
+  </joint>
+  
+  <link name="camera_link_3">
+    <xacro:sensor_link_macro l="${l_camera}"/>
+  </link>
+  <joint name="camera_joint_3" type="fixed">
+    <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="${-y_chassis/2+l_camera/2}" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_3"/>
+  </joint>
+
+  <!-- Add the wheels for the robot -->
+  <link name="left_wheel">
+    <collision name="collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="left_wheel_visual">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="${m_wheel}"/>
+      <cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+      <xacro:cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+    </inertial>
+  </link>
+
+  <link name="right_wheel">
+    <collision name="collision">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+      <surface>
+        <friction>
+          <ode>
+            <mu>0</mu>
+            <mu2>0</mu2>
+            <slip1>1.0</slip1>
+            <slip2>1.0</slip2>
+          </ode>
+        </friction>
+      </surface>
+    </collision>
+    <visual name="right_wheel_visual">
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <geometry>
+        <cylinder radius="${r_wheel}" length="${h_wheel}"/>
+      </geometry>
+    </visual>
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 1.5707 1.5707"/>
+      <mass value="${m_wheel}"/>
+      <cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+      <xacro:cylinder_inertia m="${m_wheel}" r="${r_wheel}" h="${h_wheel}"/>
+    </inertial>
+  </link>
+
+  <!-- Set joints -->
+  <joint type="continuous" name="left_wheel_hinge">
+    <origin xyz="${-x_chassis/4} ${y_chassis/2+h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <child link="left_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+
+  <joint type="continuous" name="right_wheel_hinge">
+    <origin xyz="${-x_chassis/4} ${-y_chassis/2-h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <child link="right_wheel"/>
+    <parent link="chassis"/>
+    <axis xyz="0 1 0" rpy="0 0 0"/>
+    <limit effort="100" velocity="100"/>
+    <joint_properties damping="0.0" friction="0.0"/>
+  </joint>
+  
+ </robot>

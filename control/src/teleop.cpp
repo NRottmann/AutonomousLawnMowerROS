@@ -55,8 +55,8 @@ void OdometryListener::callback(const interfaces::Odometry::ConstPtr& msg_in)
 // Actualize position
 void OdometryListener::actualizePosition() 
 {
-	float ds = 0.5 * (msg_store.l_R - msg_store.l_L);
-	float dphi = (msg_store.l_R + msg_store.l_L) / (2*L);
+	float ds = 0.5 * (msg_store.l_R + msg_store.l_L);
+	float dphi = (msg_store.l_R - msg_store.l_L) / (2*L);
 
 	x = x + sin(phi) * ds;
 	y = y + cos(phi) * ds;

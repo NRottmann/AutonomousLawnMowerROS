@@ -161,10 +161,10 @@ interfaces::Control Listener::getMotorCom()
 			msg_out.v = 0;
 			if (angleDiff > 0)
 			{
-				angleDiff = angleDiff - min(angleDiff, (msg_odometry.l_R + msg_odometry.l_L) / (2 * L));
+				angleDiff = angleDiff - min(angleDiff, (msg_odometry.l_R - msg_odometry.l_L) / (2 * L));
 			}
 			else {
-				angleDiff = angleDiff + min(-1*angleDiff, -1*(msg_odometry.l_R + msg_odometry.l_L) / (2 * L));
+				angleDiff = angleDiff + min(-1*angleDiff, -1*(msg_odometry.l_R - msg_odometry.l_L) / (2 * L));
 			}
 			ROS_INFO("angleDiff: %f", angleDiff);
 			//angleDiff = angleDiff - msg_out.w;

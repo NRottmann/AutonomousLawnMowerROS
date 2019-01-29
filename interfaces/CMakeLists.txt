@@ -22,6 +22,7 @@ add_message_files(
   Control.msg
   Decawave.msg
   Bumper.msg
+  Chlorophyll.msg
 )
 
 generate_messages(
