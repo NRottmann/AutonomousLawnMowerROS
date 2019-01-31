@@ -1,0 +1,11 @@
+<launch>
+
+  <!-- Start radar and capacity sensor nodes -->
+  <node pkg="interfaces" name="radar" type="radarInterface" output="screen" />
+  <node pkg="interfaces" name="capacity" type="capacityInterface" output="screen" />
+  
+  <!-- Start rosbag to store data -->
+  <node pkg="rosbag" name="test_bag" type="record" 
+		args="-o ../bag_files/robotData /radarData /capacityData"/>
+
+</launch>

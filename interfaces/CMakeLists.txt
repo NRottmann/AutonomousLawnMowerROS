@@ -23,6 +23,7 @@ add_message_files(
   Decawave.msg
   Bumper.msg
   Chlorophyll.msg
+  Capacity.msg
 )
 
 generate_messages(
@@ -50,15 +51,21 @@ add_executable(sensorInterface src/sensorInterface.cpp)
 add_executable(i2cInterface src/i2cInterface.cpp)
 add_executable(decawaveInterface src/decawaveInterface.cpp)
 add_executable(bumperInterface src/bumperInterface.cpp)
+add_executable(radarInterface src/radarInterface.cpp)
+add_executable(capacityInterface src/capacityInterface.cpp)
 
 target_link_libraries(motorInterface ${catkin_LIBRARIES})
 target_link_libraries(sensorInterface ${catkin_LIBRARIES})
 target_link_libraries(i2cInterface ${catkin_LIBRARIES})
 target_link_libraries(decawaveInterface ${catkin_LIBRARIES})
 target_link_libraries(bumperInterface ${catkin_LIBRARIES})
+target_link_libraries(radarInterface ${catkin_LIBRARIES})
+target_link_libraries(capacityInterface ${catkin_LIBRARIES})
 
 add_dependencies(motorInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
 add_dependencies(sensorInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
 add_dependencies(i2cInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
 add_dependencies(decawaveInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
 add_dependencies(bumperInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
+add_dependencies(radarInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
+add_dependencies(capacityInterface ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
