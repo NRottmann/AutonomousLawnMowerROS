@@ -1,11 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(localization)
 
-set(CMAKE_CXX_COMPILER "g++")
-set(CMAKE_C_COMPILER "gcc")
-
-add_compile_options(-std=c++11)
-
 ## link_directories(/usr/local/include)
 
 ## Find catkin macros and libraries
@@ -49,4 +44,4 @@ include_directories(
 
 add_executable(kalmanFilter src/kalmanFilter.cpp)
 target_link_libraries(kalmanFilter ${catkin_LIBRARIES})
-add_dependencies(kalmanFilter ${catkin_EXPORTED_TARGETS})
+add_dependencies(kalmanFilter ${catkin_EXPORTED_TARGETS} localization_generate_messages_cpp)

@@ -38,6 +38,9 @@ add_library(chlorophyllSensor_plugin SHARED src/chlorophyllSensor_plugin.cpp)
 target_link_libraries(odometry_plugin ${GAZEBO_LIBRARIES})
 target_link_libraries(chlorophyllSensor_plugin ${GAZEBO_LIBRARIES})
 
+add_dependencies(odometry_plugin ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
+add_dependencies(chlorophyllSensor_plugin ${catkin_EXPORTED_TARGETS} interfaces_generate_messages_cpp)
+
 # ROS node
 add_executable(sensor_transform src/sensor_transform.cpp)
 target_link_libraries(sensor_transform ${catkin_LIBRARIES})
