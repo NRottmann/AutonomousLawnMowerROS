@@ -1,34 +1,40 @@
 #include "ros/ros.h"
 #include "std_msgs/String.h"
-#include <interfaces/Chlorophyll.h>
+#include <interfaces/Sensor.h>
 #include <sensor_msgs/Image.h>
 
 // Define a callback class
 class SensorListener
 {
 	public:
-		void callback1(const sensor_msgs::Image::ConstPtr& msg);
+		void callback(const sensor_msgs::Image::ConstPtr& msg);
 		SensorListener(ros::NodeHandle nh, ros::NodeHandle nhp);		
 	private:
 		// Subscriber and Publisher
-		ros::Subscriber sub_image1;
-		ros::Publisher pub_sensor1;
+		ros::Subscriber sub_image;
+		ros::Publisher pub_sensor;
 };
 // Constructor
 SensorListener::SensorListener(ros::NodeHandle nh, ros::NodeHandle nhp) {
 	// Initialize subscribers
-	sub_image1 = nh.subscribe("camera_1/image_raw", 10, &SensorListener::callback1, this);
+	sub_image = nh.subscribe("camera/image_raw", 10, &SensorListener::callback, this);
 	// Initialize publisher
-	pub_sensor1 = nh.advertise<interfaces::Chlorophyll>("sensor1", 10);
+	pub_sensor = nh.advertise<interfaces::Sensor>("sensorData", 10);
 }
 
 
 // Callback function to get the data from the topics
-void SensorListener::callback1(const sensor_msgs::Image::ConstPtr& msg_in)
+void SensorListener::callback(const sensor_msgs::Image::ConstPtr& msg_in)
 {
-	interfaces::Chlorophyll msg_out;
-	msg_out.data = msg_in->data[1];
-	pub_sensor1.publish(msg_out);
+	interfaces::Sensor msg_out;
+	uint8_t R = msg_in->data[0];
+	uint8_t G = msg_in->data[1];
+	uint8_t B = msg_in->data[2];
+	msg_out.r1 = 0;
+	if ((G > R) && (G > B)) {
+		msg_out.r1 = 255;
+	}
+	pub_sensor.publish(msg_out);
 }
 
 int main(int argc, char **argv)

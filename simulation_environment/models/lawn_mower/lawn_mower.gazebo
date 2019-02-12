@@ -16,6 +16,12 @@
   </gazebo> 
   
   <!-- Camera sensor plugins -->
+  <!-- One Sensor -->
+  <gazebo reference="camera_link">
+	<xacro:sensor_plugin_macro name="camera" topic_name="image_raw" info_name="camera_info" frame_name="camera_link"/>
+  </gazebo>
+  
+  <!-- Three sensors -->
   <gazebo reference="camera_link_1">
     <xacro:sensor_plugin_macro name="camera_1" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_1"/>
   </gazebo>
@@ -28,11 +34,14 @@
     <xacro:sensor_plugin_macro name="camera_3" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_3"/>
   </gazebo>
   
-  <!-- Changing the colors -->
-  <gazebo>
-	  <plugin name="chlorophyllSensor_plugin" filename="libchlorophyllSensor_plugin.so"/>
-  </gazebo> 
- 
+  <!-- ChlorophyllSensor Plugin, outdated since we use now cameras -->
+  <!-- <gazebo>
+	  <plugin name="chlorophyllSensor_plugin" filename="libchlorophyllSensor_plugin.so" >
+		  <x_pos>${x_chassis/2}</x_pos>
+		  <y_pos>0.0</y_pos>
+	  </plugin>
+  </gazebo> -->
+  
   <!-- Chassis color -->
   <gazebo reference="chassis">
       <material>Gazebo/Orange</material>

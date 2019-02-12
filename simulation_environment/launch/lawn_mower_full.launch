@@ -10,6 +10,8 @@
   <arg name="debug" default="false"/>
   <arg name="model_name" default="lawn_mower.xacro"/>
   
+  <arg name="numSensors" default="1"/>
+  
   <!-- Loading the map -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
     <arg name="world_name" value="$(find simulation_environment)/worlds/lawn_mower.world"/>
@@ -21,9 +23,9 @@
   </include>
 
   <!-- Here the sdf files are generated from the xacros -->
-  <param name="simulation_environment" command="$(find xacro)/xacro --inorder '$(find simulation_environment)/models/lawn_mower/$(arg model_name)'"/>
+  <param name="simulation_environment" command="$(find xacro)/xacro --inorder '$(find simulation_environment)/models/lawn_mower/$(arg model_name)' prefix:=$(arg numSensors)"/>
   
-  <!-- Spawn the robot. TODO: Why not in the world file? -->
+  <!-- Spawn the robot -->
   <node name="lawn_mower_spawn" pkg="gazebo_ros" type="spawn_model" output="screen"
    args="-urdf -param simulation_environment -model lawn_mower" />
    

@@ -58,6 +58,16 @@
   </link>
   
   <!-- Chlorophyllsensors -->
+  <xacro:if value="${$(arg prefix) == 1}">
+	<link name="camera_link">
+		<xacro:sensor_link_macro l="${l_camera}"/>
+	</link>
+	<joint name="camera_joint" type="fixed">
+		<xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="0" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link"/>
+	</joint>
+  </xacro:if>
+  
+  <xacro:if value="${$(arg prefix) == 3}">
   <link name="camera_link_1">
     <xacro:sensor_link_macro l="${l_camera}"/>
   </link>
@@ -78,6 +88,7 @@
   <joint name="camera_joint_3" type="fixed">
     <xacro:sensor_joint_macro x="${x_chassis/2 + l_camera/2}" y="${-y_chassis/2+l_camera/2}" z="${-z_chassis/2 + l_camera/2}" l="${l_camera}" parent_link="chassis" child_link="camera_link_3"/>
   </joint>
+  </xacro:if>
 
   <!-- Add the wheels for the robot -->
   <link name="left_wheel">
