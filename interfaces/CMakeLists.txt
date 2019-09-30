@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(interfaces)
 
-# set(CMAKE_CXX_COMPILER "g++")
-# set(CMAKE_C_COMPILER "gcc")
-# add_compile_options(-std=c++11)
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_C_COMPILER "gcc")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
@@ -24,8 +23,8 @@ add_message_files(
   Decawave.msg
   Bumper.msg
   Chlorophyll.msg
-  Radar.msg
   Capacity.msg
+  Radar.msg
 )
 
 generate_messages(
