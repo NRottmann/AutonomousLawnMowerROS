@@ -30,3 +30,6 @@ filter:
  by: 2.85
  nphi: 2.11
  bphi: 0.3139
+mapping:
+ L_min: 0.1
+ e_max: 0.1
