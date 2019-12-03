@@ -1,6 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(localization)
 
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_C_COMPILER "gcc")
+
+add_compile_options(-std=c++11)
+
 ## link_directories(/usr/local/include)
 
 ## Find catkin macros and libraries

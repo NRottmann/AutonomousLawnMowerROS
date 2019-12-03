@@ -25,7 +25,7 @@ int main (int argc, char** argv){
 	// define publisher
     ros::Publisher radar_pub = nh.advertise<interfaces::Radar>("radarData", 1000);
 	// Try to initialize the right serial connection and catch errors
-	std::string sensorID = "/dev/sensor01";
+	std::string sensorID = "/dev/sensor02";
     try
     {
         ser.setPort(sensorID.c_str());

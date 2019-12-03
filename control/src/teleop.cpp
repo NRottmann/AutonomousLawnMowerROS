@@ -27,10 +27,8 @@ void TeleopListener::callback(const geometry_msgs::Twist::ConstPtr& twist)
 // Calculates the desired speed
 void TeleopListener::calculateMotorCommands(interfaces::Control &msg) 
 {
-	float vMax = 0.5;
-	float wMax = 0.5;
-	msg.v = tele_twist.linear.x * vMax;;
-	msg.w = tele_twist.angular.z * wMax;;
+	msg.v = tele_twist.linear.x;
+	msg.w = tele_twist.angular.z;
 }
 // Define a callback class
 class OdometryListener
@@ -82,7 +80,7 @@ int main(int argc, char **argv)
   ros::Publisher tele_pub = nh.advertise<interfaces::Control>("controlData", 1000);
   // Initialize the subscriber to get the teleop data
   TeleopListener listener;
-  ros::Subscriber sub = nh.subscribe("/joy_teleop/cmd_vel", 1000, &TeleopListener::callback, &listener);
+  ros::Subscriber sub = nh.subscribe("/cmd_vel", 1000, &TeleopListener::callback, &listener);
   // Initialize the subscriber to get the odometry messages
   OdometryListener listenerOdo;
   listenerOdo.getParam(nhp);

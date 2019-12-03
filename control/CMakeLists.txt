@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(control)
 
+set(CMAKE_CXX_COMPILER "g++")
+set(CMAKE_C_COMPILER "gcc")
+
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
   interfaces
