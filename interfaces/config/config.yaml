@@ -33,3 +33,6 @@ filter:
 mapping:
  L_min: 0.1
  e_max: 0.1
+ L_NH: 15
+ c_min: 0.1
+ m: 20

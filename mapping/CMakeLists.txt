@@ -15,6 +15,8 @@ find_package(Eigen3 REQUIRED)
 add_message_files(
   FILES
   DP.msg
+  LC.msg
+  RM.msg
 )
 
 generate_messages(
@@ -43,3 +45,7 @@ include_directories(
 add_executable(dpGeneration src/dpGeneration.cpp)
 target_link_libraries(dpGeneration ${catkin_LIBRARIES})
 add_dependencies(dpGeneration ${catkin_EXPORTED_TARGETS} mapping_generate_messages_cpp)
+
+add_executable(lcDetection src/lcDetection.cpp)
+target_link_libraries(lcDetection ${catkin_LIBRARIES})
+add_dependencies(lcDetection ${catkin_EXPORTED_TARGETS} mapping_generate_messages_cpp)
