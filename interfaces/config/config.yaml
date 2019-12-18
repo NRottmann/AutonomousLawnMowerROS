@@ -32,7 +32,7 @@ filter:
  bphi: 0.3139
 mapping:
  L_min: 0.1
- e_max: 0.1
+ e_max: 0.01
  L_NH: 15
  c_min: 0.1
- m: 20
+ m: 30

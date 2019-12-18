@@ -22,11 +22,10 @@ class Listener
 		interfaces::Odometry msg_odometry;
 		// Define vectors and matrices using the Eigen library
 		Vector3f pose;																												// Current pose
-		Vector2f lastDP;																											// Last DP
-		
-		float positions[2][1000];																// Storage capacity for positions for the DP generation, TODO: Maybe dynamic allocation?
+
+		MatrixXf positions;																										// Storage capacity for positions for the DP generation
 		unsigned int numPositions;
-		
+
 		unsigned int idx;
 
 		// Parameter
@@ -53,11 +52,12 @@ Listener::Listener(ros::NodeHandle nh, ros::NodeHandle nhp) {
 
 	// Initialize vectors and matrices with zeros
 	pose << 0, 0, 0;
-	lastDP << 0, 0;
-	positions[0][0] = 0; positions[1][0] = 0;
-	
-	numPositions = 0;
-	idx = 0;
+
+	positions = MatrixXf::Zero(2,1);
+	numPositions = 1;
+
+	// Index of the DPs
+	idx = 1;
 
 	// Initialize subscribers
 	sub_odometry = nh.subscribe("odometryData", 1000, &Listener::callbackOdometry, this);
@@ -86,43 +86,45 @@ void Listener::callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in)
 	pose = pose + T * deltaOdo;
 
 	// Check for new DPs
-	Vector2f newPosition;
-	newPosition << pose(0), pose(1);
+	Vector2f newPosition; newPosition << pose(0), pose(1);
 	bool newDP = generationDP(newPosition);
 }
 
 // Functions
 bool Listener::generationDP(Vector2f newPosition) {
-	Vector2f diff = lastDP - newPosition;
-	float d = diff.norm();
 	// Add new position to the set S (positions)
-	numPositions++;
-	positions[0][numPositions] = newPosition(0); positions[1][numPositions] = newPosition(1);
-	if(d > L_min && numPositions > 1) {
+	numPositions++; positions.conservativeResize(2,numPositions);
+	positions(0,numPositions-1) = newPosition(0); positions(1,numPositions-1) = newPosition(1);
+
+	// Calculate current distance
+	Vector2f v = positions.col(numPositions-1) - positions.col(0);
+	float d = v.norm();
+
+	// Check if at least 3 Points and we reached the minimal distance
+	if(d > L_min && numPositions > 2) {
 		// Calculate line fit error
 		float e = 0;
-		float phi = atan2f(diff(1),diff(0));
-		for(int i=1; i<(numPositions); i++) {
-			Vector2f test;
-			test << positions[0][i], positions[1][i];
-			test = test - lastDP;
-			float testPhi = atan2f(test(1),test(0));
-			testPhi = testPhi - phi;
-			e += powf(sinf(testPhi) * test.norm(), 2);
+		float phi = atan2f(v(1),v(0));
+		for(int i=1; i<(numPositions-1); i++) {
+			Vector2f vTest = positions.col(i) - positions.col(0);
+			float testPhi = atan2f(vTest(1),vTest(0));
+			float psi = testPhi - phi;
+			e += powf(sinf(psi) * vTest.norm(), 2);
 		}
-		e = e / (numPositions-1);
+		e = e / (numPositions-2);
 		// Check if error is over the limit
 		if(e > e_max) {
-			positions[0][0] = positions[0][numPositions-1]; positions[1][0] = positions[1][numPositions-1];
-			positions[0][1] = newPosition(0); positions[1][1] = newPosition(1);
-			numPositions = 1;
-			idx++;
-			
+			Matrix2f positions_tmp; positions_tmp << positions(0,numPositions-2), positions(0,numPositions-1), positions(1,numPositions-2), positions(1,numPositions-1);
+			positions.resize(2,2); positions = positions_tmp;
+			numPositions = 2;
+
 			mapping::DP msg_out;
-			msg_out.x = positions[0][0];
-			msg_out.y = positions[1][0];
+			msg_out.x = positions(0,0);
+			msg_out.y = positions(1,0);
 			msg_out.idx = idx;
 			pub_DP.publish(msg_out);
+
+			idx++;
 			return true;
 		}
 	}

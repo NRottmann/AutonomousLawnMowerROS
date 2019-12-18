@@ -14,6 +14,10 @@
 	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
   </node>
   
+  <node pkg="mapping" name="pgOptimization" type="pgOptimization" output="screen">
+	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
+  </node>
+  
   <!-- Start rosbag to store data 
   <node pkg="rosbag" name="test_bag" type="record" 
 		args="-o ../bag_files/robotData /controlData /odometryData /imuData /sensorData"/>
