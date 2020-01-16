@@ -50,3 +50,7 @@ include_directories(
 add_executable(kalmanFilter src/kalmanFilter.cpp)
 target_link_libraries(kalmanFilter ${catkin_LIBRARIES})
 add_dependencies(kalmanFilter ${catkin_EXPORTED_TARGETS} localization_generate_messages_cpp)
+
+add_executable(particleFilter src/particleFilter.cpp)
+target_link_libraries(particleFilter ${catkin_LIBRARIES})
+add_dependencies(particleFilter ${catkin_EXPORTED_TARGETS} localization_generate_messages_cpp)

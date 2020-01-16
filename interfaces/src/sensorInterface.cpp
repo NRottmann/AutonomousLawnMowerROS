@@ -1,7 +1,7 @@
 /*
- * This node enables a connection between ROS and a serial port and 
+ * This node enables a connection between ROS and a serial port and
  * reads data from the serial port.
- * 
+ *
  * Be sure that the correct serial port is chosen!
  */
 
@@ -17,7 +17,7 @@ serial::Serial serLeft;
 
 // Fucntion to transfrom string into sensor message
 interfaces::Sensor analyze(std_msgs::String msgRight, std_msgs::String msgLeft)
-{	
+{
 	// Transform string to uint8_t
 	interfaces::Sensor msg_out;
 	msg_out.r1 = reinterpret_cast<uint8_t>((unsigned char)msgRight.data.c_str()[msgRight.data.length() - 1]);
@@ -30,7 +30,7 @@ int main (int argc, char** argv){
 	// initialize the node
     ros::init(argc, argv, "sensorInterface");
     ros::NodeHandle nh;								// public handle for topics, etc.
-	ros::NodeHandle nhp("~");						// private handle to get parameters
+	  ros::NodeHandle nhp("~");						// private handle to get parameters
     ROS_INFO("Sensor interface is initialized!");
 	// define publisher
     ros::Publisher sensor_pub = nh.advertise<interfaces::Sensor>("sensorData", 1000);
@@ -83,7 +83,7 @@ int main (int argc, char** argv){
 	ros::Rate loop_rate(frequency);
     while(ros::ok()){
 		// Get data from the sensors
-        if(serRight.available() && serLeft.available()) {	
+        if(serRight.available() && serLeft.available()) {
 			// Create standard string message
             std_msgs::String resultRight;
 			std_msgs::String resultLeft;
@@ -94,8 +94,7 @@ int main (int argc, char** argv){
 			interfaces::Sensor result_tr = analyze(resultRight, resultLeft);
 			// publish data
 			sensor_pub.publish(result_tr);
-        }     
+        }
         loop_rate.sleep();
     }
 }
-
