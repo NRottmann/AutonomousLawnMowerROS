@@ -40,3 +40,17 @@ ROS Stack for the self-designed autonomous lawn mower of the University of Luebe
 
   ![](images/ExampleMapping.jpg)
 
+
+
+## Setup of the simulated Lawn Mower
+
+The lawn mower robot properties are defined in the .yaml-file
+
+```bash
+AutonomousLawnMowerROS/simulation_environment/config/props.yaml
+```
+
+The properties define the structure of the robot as defined in the Figure below.
+
+<img src="images/SetupSimLawnMower.png" style="zoom:75%;" />
+
