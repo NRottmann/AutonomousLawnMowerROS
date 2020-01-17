@@ -82,8 +82,8 @@ interfaces::Control Listener::getMotorCom()
 
 	// Process input data
 	int S1mess = 0, S2mess = 0;
-	if (msg_sensor.l1 > 80) { S1mess = 1; }
-	if (msg_sensor.r1 > 80) { S2mess = 1; }
+	if (msg_sensor.left > 80) { S1mess = 1; }
+	if (msg_sensor.right > 80) { S2mess = 1; }
 
 	// Update mean sensor values
 	meanS1 = meanS1 * 0.9 + S1mess * 0.1f;

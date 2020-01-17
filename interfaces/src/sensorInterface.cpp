@@ -20,8 +20,8 @@ interfaces::Sensor analyze(std_msgs::String msgRight, std_msgs::String msgLeft)
 {
 	// Transform string to uint8_t
 	interfaces::Sensor msg_out;
-	msg_out.r1 = reinterpret_cast<uint8_t>((unsigned char)msgRight.data.c_str()[msgRight.data.length() - 1]);
-	msg_out.l1 = reinterpret_cast<uint8_t>((unsigned char)msgLeft.data.c_str()[msgLeft.data.length() - 1]);
+	msg_out.right = reinterpret_cast<uint8_t>((unsigned char)msgRight.data.c_str()[msgRight.data.length() - 1]);
+	msg_out.left = reinterpret_cast<uint8_t>((unsigned char)msgLeft.data.c_str()[msgLeft.data.length() - 1]);
 	return msg_out;
 }
 

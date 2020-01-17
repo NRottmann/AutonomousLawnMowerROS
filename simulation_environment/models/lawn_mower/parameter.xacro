@@ -2,26 +2,26 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 	
  <!-- Define parameter -->
+  <!-- load parameters from yaml file -->
+  <xacro:property name="yaml_file" 		value="$(find simulation_environment)/config/props.yaml" />
+  <xacro:property name="props" 			value="${load_yaml(yaml_file)}"/>
+  
   <!-- Parameter for the chassis -->
-  <xacro:property name="x_chassis" value="0.5" />
-  <xacro:property name="y_chassis" value="0.3" />
-  <xacro:property name="z_chassis" value="0.15" />
-  <xacro:property name="m_chassis" value="5.0" />
+  <xacro:property name="x_chassis" 		value="${props['x_chassis']}" />
+  <xacro:property name="y_chassis" 		value="${props['y_chassis']}" />
+  <xacro:property name="z_chassis" 		value="${props['z_chassis']}" />
+  <xacro:property name="m_chassis" 		value="${props['m_chassis']}" /> 
   
   <!-- Parameter for the wheels -->
-  <xacro:property name="r_wheel" value="0.1075" />
-  <xacro:property name="h_wheel" value="0.03" />
-  <!-- TODO: To stable the simulation we had to take a much higher mass value as would be realistic -->
-  <xacro:property name="m_wheel" value="5" /> 
-  <xacro:property name="torque_wheel" value="100" />
-  <xacro:property name="L_wheel" value="0.1788" />
+  <xacro:property name="r_wheel" 		value="${props['r_wheel']}" />
+  <xacro:property name="h_wheel" 		value="${props['h_wheel']}" />
+  <xacro:property name="L_wheel" 		value="${props['L_wheel']}" />
   
-  <!-- Parameter for the chlorophyll sensors -->
-  <xacro:property name="r_sensor" value="0.01" /> 
-  <xacro:property name="x_sensor" value="${x_chassis/2 - r_sensor}" /> 
-  <xacro:property name="y_sensor" value="${y_chassis/2 - r_sensor}" />
+  <!-- TODO: To stable the simulation we had to take a much higher mass value as would be realistic -->
+  <xacro:property name="m_wheel" 		value="5" /> 
+  <xacro:property name="torque_wheel" 	value="100" />
   
   <!-- Camera parameter -->
-  <xacro:property name="l_camera" value="0.02" /> 
+  <xacro:property name="l_camera" 		value="${props['l_camera']}" /> 
 
 </robot>

@@ -16,22 +16,16 @@
   </gazebo> 
   
   <!-- Camera sensor plugins -->
-  <!-- One Sensor -->
-  <gazebo reference="camera_link">
-	<xacro:sensor_plugin_macro name="camera" topic_name="image_raw" info_name="camera_info" frame_name="camera_link"/>
+  <gazebo reference="camera_link_mid">
+	<xacro:sensor_plugin_macro name="camera_mid" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_mid"/>
   </gazebo>
   
-  <!-- Three sensors -->
-  <gazebo reference="camera_link_1">
-    <xacro:sensor_plugin_macro name="camera_1" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_1"/>
+  <gazebo reference="camera_link_left">
+    <xacro:sensor_plugin_macro name="camera_left" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_left"/>
   </gazebo>
   
-  <gazebo reference="camera_link_2">
-    <xacro:sensor_plugin_macro name="camera_2" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_2"/>
-  </gazebo>
-  
-  <gazebo reference="camera_link_3">
-    <xacro:sensor_plugin_macro name="camera_3" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_3"/>
+  <gazebo reference="camera_link_right">
+    <xacro:sensor_plugin_macro name="camera_right" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_right"/>
   </gazebo>
   
   <!-- ChlorophyllSensor Plugin, outdated since we use now cameras -->

@@ -2,15 +2,14 @@
 <launch>
 
   <!-- Define default parameters -->
-  <arg name="world" default="empty"/> 
-  <arg name="paused" default="false"/>
-  <arg name="use_sim_time" default="true"/>
-  <arg name="gui" default="true"/>
-  <arg name="headless" default="true"/>
-  <arg name="debug" default="false"/>
-  <arg name="model_name" default="lawn_mower.xacro"/>
-  
-  <arg name="numSensors" default="1"/>
+  <arg name="world" 			default="empty"/> 
+  <arg name="paused" 			default="false"/>
+  <arg name="use_sim_time" 		default="true"/>
+  <arg name="gui" 				default="true"/>
+  <arg name="headless" 			default="true"/>
+  <arg name="debug" 			default="false"/>
+  <arg name="model_name" 		default="lawn_mower.xacro"/>
+  <arg name="numSensors" 		default="3"/>
   
   <!-- Loading the map -->
   <include file="$(find gazebo_ros)/launch/empty_world.launch">

@@ -64,9 +64,9 @@ interfaces::Control Listener::getMotorCom()
 	// Evaluate sensor data
 	float r = 0.0f;
 	float l = 0.0f;
-	if (msg_sensor.r1 > sensorTreshold) { r = 1.0f; }
+	if (msg_sensor.right > sensorTreshold) { r = 1.0f; }
 	else { r = 0.0f; }
-	if (msg_sensor.l1 > sensorTreshold) { l = 1.0f; }
+	if (msg_sensor.left > sensorTreshold) { l = 1.0f; }
 	else { l = 0.0f; }
 
 	// Start w

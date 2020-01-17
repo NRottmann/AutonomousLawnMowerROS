@@ -93,13 +93,13 @@ namespace gazebo
 	  double x_l = pose.pos.x + cos(eulerAngles.z)*x_pos - sin(eulerAngles.z)*y_pos;
 	  double y_l = pose.pos.y + cos(eulerAngles.z)*y_pos + sin(eulerAngles.z)*x_pos;
       if (pnpoly(nvert, x_map, y_map, x_r, y_r))
-        msg.r1 = 200;
+        msg.right = 200;
       else
-        msg.r1 = 0;
+        msg.right = 0;
       if (pnpoly(nvert, x_map, y_map, x_l, y_l))
-        msg.l1 = 200;
+        msg.left = 200;
       else
-        msg.l1 = 0;
+        msg.left = 0;
       this->rosPub.publish(msg);   
     }
     

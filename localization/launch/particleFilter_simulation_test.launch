@@ -1,6 +1,8 @@
 <launch>
   
-  <include file="$(find simulation_environment)/launch/lawn_mower_full.launch" />
+  <include file="$(find simulation_environment)/launch/lawn_mower_full.launch">
+	<arg name="numSensors" value="2"/>
+  </include>
   
   <node pkg="control" name="wallFollower" type="wallFollower">
 	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>

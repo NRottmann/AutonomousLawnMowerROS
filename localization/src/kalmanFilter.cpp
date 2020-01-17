@@ -101,7 +101,7 @@ void Listener::callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in)
 	if (fabs(msg_new.l_R) > 0.2)
 		msg_new.l_R = 0.0f;
 	Vector2f deltaOdo;															// holds ds and dphi for the odometry
-	deltaOdo << ((msg_new.l_R + msg_new.l_L) / 2), 
+	deltaOdo << ((msg_new.l_R + msg_new.l_L) / 2),
 				((msg_new.l_R - msg_new.l_L) / (2 * L));
 	MatrixXf T(3, 2);
 	T << cosf(p0(2)), 0,
@@ -180,7 +180,7 @@ void Listener::callbackIMU(const interfaces::IMU::ConstPtr& msg_in)
 }
 // Functions
 Vector3f Listener::transformIMU(Vector3f acc, float phi) {
-	Matrix3f R1; 
+	Matrix3f R1;
 	R1 <<	0, -1, 0,
 			-1, 0, 0,
 			0, 0, -1;						//Rotation matrix around y and z axis
@@ -191,7 +191,7 @@ Vector3f Listener::transformIMU(Vector3f acc, float phi) {
 	Vector3f result = R2 * R1 * acc;
 	return result;
 }
-Vector3f Listener::transformOdometry() 
+Vector3f Listener::transformOdometry()
 {
 	Vector3f delta;
 	delta(1) = sqrtf(powf((p0(0) - p1(0)), 2) + powf((p0(1) - p1(1)), 2));
@@ -244,4 +244,3 @@ int main(int argc, char **argv)
 	}
 	return 0;
 }
-

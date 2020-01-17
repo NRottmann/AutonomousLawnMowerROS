@@ -1,0 +1,8 @@
+x_chassis: 0.5 
+y_chassis: 0.32
+z_chassis: 0.15
+m_chassis: 5.0
+r_wheel: 0.1075
+L_wheel: 0.1788
+h_wheel: 0.0376
+l_camera: 0.02
