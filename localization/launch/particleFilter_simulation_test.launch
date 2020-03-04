@@ -8,7 +8,7 @@
 	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
   </node>
   
-  <node pkg="localization" name="particleFilter" type="particleFilter">
+  <node pkg="localization" name="particleFilter" type="particleFilter" output="screen">
 	  <rosparam command="load" file="$(find interfaces)/config/config.yaml"/>
   </node>
   
