@@ -57,6 +57,27 @@
     </visual>
   </link>
   
+   <!-- Add an odom link -->
+  <link name="odom_link" >
+	<collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+		<box size="1e-6 1e-6 1e-6"/>
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="1e-5" />
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="1e-6" ixy="0" ixz="0" iyy="1e-6" iyz="0" izz="1e-6" />
+    </inertial>
+  </link>
+  <joint name="odom_joint" type="fixed">
+    <axis xyz="0 1 0" />
+    <origin xyz="${-X_wheel} 0 0" rpy="0 0 0"/>
+    <parent link="chassis"/>
+    <child link="odom_link"/>
+  </joint>
+  
   <!-- Chlorophyllsensors -->
   <xacro:if value="${$(arg prefix) == 1}">
 	<link name="camera_link_mid">
@@ -116,10 +137,10 @@
       <surface>
         <friction>
           <ode>
-            <mu>0</mu>
-            <mu2>0</mu2>
-            <slip1>1.0</slip1>
-            <slip2>1.0</slip2>
+            <mu>100.0</mu>
+            <mu2>100.0</mu2>
+            <slip1>0.0</slip1>
+            <slip2>0.0</slip2>
           </ode>
         </friction>
       </surface>
@@ -147,10 +168,10 @@
       <surface>
         <friction>
           <ode>
-            <mu>0</mu>
-            <mu2>0</mu2>
-            <slip1>1.0</slip1>
-            <slip2>1.0</slip2>
+            <mu>100.0</mu>
+            <mu2>100.0</mu2>
+            <slip1>0.0</slip1>
+            <slip2>0.0</slip2>
           </ode>
         </friction>
       </surface>
@@ -171,18 +192,18 @@
 
   <!-- Set joints -->
   <joint type="continuous" name="left_wheel_hinge">
-    <origin xyz="${-x_chassis/4} ${y_chassis/2+h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <origin xyz="0 ${L_wheel} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
     <child link="left_wheel"/>
-    <parent link="chassis"/>
+    <parent link="odom_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>
   </joint>
 
   <joint type="continuous" name="right_wheel_hinge">
-    <origin xyz="${-x_chassis/4} ${-y_chassis/2-h_wheel/2} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
+    <origin xyz="0 ${-L_wheel} ${r_wheel/2-z_chassis/2}" rpy="0 0 0"/>
     <child link="right_wheel"/>
-    <parent link="chassis"/>
+    <parent link="odom_link"/>
     <axis xyz="0 1 0" rpy="0 0 0"/>
     <limit effort="100" velocity="100"/>
     <joint_properties damping="0.0" friction="0.0"/>

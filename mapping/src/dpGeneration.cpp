@@ -3,6 +3,7 @@
 */
 
 #include <ros/ros.h>
+#include <ros/transport_hints.h>
 #include <interfaces/Odometry.h>
 #include <mapping/DP.h>
 #include <Eigen/Eigen>
@@ -16,8 +17,8 @@ using namespace Eigen;
 class Listener
 {
 	public:
-		void callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in);	// callback function to receive odometry data from the motorInterface
-		Listener(ros::NodeHandle nh, ros::NodeHandle nhp);										// this is the constructor
+		void callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in);			// callback function to receive odometry data from the motorInterface
+		Listener(ros::NodeHandle nh, ros::NodeHandle nhp);								// this is the constructor
 	private:
 		interfaces::Odometry msg_odometry;
 		// Define vectors and matrices using the Eigen library
@@ -60,9 +61,9 @@ Listener::Listener(ros::NodeHandle nh, ros::NodeHandle nhp) {
 	idx = 1;
 
 	// Initialize subscribers
-	sub_odometry = nh.subscribe("odometryData", 1000, &Listener::callbackOdometry, this);
+	sub_odometry = nh.subscribe("odometryData", 20, &Listener::callbackOdometry, this, ros::TransportHints().tcpNoDelay());
 	// Initialize publisher
-	pub_DP = nh.advertise<mapping::DP>("dominantPoints", 1000);
+	pub_DP = nh.advertise<mapping::DP>("dominantPoints", 1);
 }
 // Callback functions
 void Listener::callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in)

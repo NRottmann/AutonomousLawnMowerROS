@@ -4,6 +4,8 @@
 
 #include <ros/ros.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <visualization_msgs/Marker.h>
+#include <geometry_msgs/Point.h>
 #include <mapping/LC.h>
 #include <mapping/PG.h>
 #include <Eigen/Eigen>
@@ -26,7 +28,7 @@ class Listener
 		// Storage capacity for the pose graph information, TODO: Change to dynamic arrays?
 		MatrixXd PG;
 		MatrixXd PG_opt;
-		MatrixXd PG_closed;
+		MatrixXd PG_closed;					// Temporary closed graph array
 		MatrixXi LC;
 		unsigned int idx_PG;
 		unsigned int idx_LC;
@@ -39,6 +41,7 @@ class Listener
 		ros::Subscriber sub_PG;
 		ros::Subscriber sub_LC;
 		ros::Publisher pub_Map;
+		ros::Publisher pub_PGrviz;
 
 		// functions
 		Vector3d getRelMeasurement(Vector3d x_i, Vector3d x_j);
@@ -46,6 +49,10 @@ class Listener
 		Matrix3d getJacobianB(Vector3d z, Vector3d p_i, Vector3d p_j);
 		void optimizePoseGraph();
 		bool inPolygon(int n_vertices, double x, double y);
+		bool intersect(Vector2d A, Vector2d B, Vector2d C, Vector2d D);
+		Vector2d intersectPoint(Vector2d A, Vector2d B, Vector2d C, Vector2d D);
+		double cross2D(Vector2d A, Vector2d B);
+		void publishLineSegments();
 		nav_msgs::OccupancyGrid generateGridMap();
 };
 
@@ -62,7 +69,8 @@ Listener::Listener(ros::NodeHandle nh, ros::NodeHandle nhp) {
 	sub_PG = nh.subscribe("poseGraph", 1000, &Listener::callbackPG, this);
 	sub_LC = nh.subscribe("loopClosures", 1000, &Listener::callbackLC, this);
 	// Initialize Publisher
-	pub_Map = nh.advertise<nav_msgs::OccupancyGrid>("occupancyGrid", 10);
+	pub_Map = nh.advertise<nav_msgs::OccupancyGrid>("occupancyGrid", 1, true);			// Publishers with latch
+	pub_PGrviz = nh.advertise<visualization_msgs::Marker>("visualizationPG", 1, true);
 }
 
 // Callback functions
@@ -85,9 +93,14 @@ void Listener::callbackPG(const mapping::PG::ConstPtr& msg_in)
 		ROS_INFO("pgOptimization: Pose Graph Optimization finished!");
 
 		// Generate Grid map and pulish it
+		ROS_INFO("pgOptimization: Start Map Generation!");
 		nav_msgs::OccupancyGrid map = generateGridMap();
 		pub_Map.publish(map);
+		ROS_INFO("pgOptimization: Map Generation finished!");
 	}
+
+	// Publish the visualization of the pose graph
+	publishLineSegments();
 }
 void Listener::callbackLC(const mapping::LC::ConstPtr& msg_in)
 {
@@ -175,7 +188,6 @@ Matrix3d Listener::getJacobianA(Vector3d z, Vector3d p_i, Vector3d p_j) {
 
 	// Get the current error
 	Vector3d e = z - getRelMeasurement(p_i, p_j);
-	// ROS_INFO("e: %f, %f, %f", e(0), e(1), e(2));
 
 	// Get the jacobian
 	Vector3d p_i_temp;
@@ -249,27 +261,34 @@ nav_msgs::OccupancyGrid Listener::generateGridMap() {
 	map.info.origin.orientation.w = 1.0f;
 	// Resize the data structure
 	map.data.resize(map.info.width*map.info.height);
-	// Close the map, TODO: Can we do better?
-	int idx_start = LC(0,0); int idx_end = LC(1,0);
-	int n_vertices = idx_end-idx_start+1;
-	ROS_INFO("pgOptimization: %i, %i, %i, %i", idx_start, idx_end, n_vertices, idx_PG);
-	PG_closed = MatrixXd::Zero(3,n_vertices);
-	ROS_INFO("1");
-	PG_closed = PG_opt.block(0,idx_start-1,3,n_vertices);
-	ROS_INFO("2");
-	PG_closed.block(0,n_vertices-1,3,1) = PG_closed.block(0,0,3,1);
-	ROS_INFO("3");
-	// Check which points are inside the polygon
-	double x0 = x_min - boundaryDistance;
-	double y0 = y_min - boundaryDistance;
+
+	// Close the map by simply adding a line between each LC, TODO: Can we do better?
+	MatrixXi occupancyMatrix = MatrixXi::Zero(map.info.width,map.info.height);
+	for (int countClosed=0; countClosed < idx_LC; countClosed++) {
+		int idx_start = LC(0,countClosed); int idx_end = LC(1,countClosed);
+		int n_vertices = idx_end-idx_start+1;
+		PG_closed = MatrixXd::Zero(3,n_vertices);
+		PG_closed = PG_opt.block(0,idx_start-1,3,n_vertices);
+		PG_closed.block(0,n_vertices-1,3,1) = PG_closed.block(0,0,3,1);
+		// Check which points are inside the polygon
+		double x0 = x_min - boundaryDistance;
+		double y0 = y_min - boundaryDistance;
+		for(int jx=0; jx<map.info.width; jx++) {
+			for(int jy=0; jy<map.info.height; jy++) {
+				if(inPolygon(n_vertices, x0+jx*map.info.resolution, y0+jy*map.info.resolution)) {
+					occupancyMatrix(jx,jy)++;
+				}
+			}
+		}
+	}
+	// Put data into occupancyGrid format
 	for(int jx=0; jx<map.info.width; jx++) {
 		for(int jy=0; jy<map.info.height; jy++) {
-			// Check all positions
 			int idx = jx + jy*map.info.width;
-			if(inPolygon(n_vertices, x0+jx*map.info.resolution, y0+jy*map.info.resolution)) {
-				map.data[idx] = (unsigned char) 0x00;
+			if(occupancyMatrix(jx,jy) >= (int)(idx_LC/2)) {
+				map.data[idx] = 0x64;
 			} else {
-				map.data[idx] = (unsigned char) 0x64;
+				map.data[idx] = 0x00;
 			}
 		}
 	}
@@ -314,8 +333,6 @@ nav_msgs::OccupancyGrid Listener::generateGridMap() {
 			}
 		}
 	}
-	ROS_INFO("pgOptimization: %i", maxCoeff);
-	ROS_INFO("pgOptimization: %i", (idx_max-idx_min+1)); */
 
 	/* for(int i=0; i<idx_PG-1; i++) {
 		// Define the vector, TODO: Use Bresenham's line algorithm or something similar
@@ -344,6 +361,81 @@ bool Listener::inPolygon(int n_vertices, double x, double y) {
        c = !c;
   }
   return c;
+}
+
+bool Listener::intersect(Vector2d A, Vector2d B, Vector2d C, Vector2d D) {
+	// Check if the line segments AB and CD intersect
+	// (1): Start by checking if line segments are co-linear
+	if (cross2D(B-A,C-A) == 0 && cross2D(B-A,D-A) == 0) {
+		return false;
+	} else {
+		if (cross2D(B-A,C-A)*cross2D(B-A,D-A) <= 0 && cross2D(D-C,A-C)*cross2D(D-C,B-C) <= 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+}
+
+Vector2d Listener::intersectPoint(Vector2d A, Vector2d B, Vector2d C, Vector2d D) {
+	// If line segments AB and CD intersect, we can calculate the intersection point
+	double t = cross2D(A-C,D-C) / cross2D(D-C,B-A);
+	return ((B-A)*t + A);
+}
+
+double Listener::cross2D(Vector2d A, Vector2d B) {
+	// Calculate 2D cross product
+	return (A(0)*B(1) - A(1)*B(0));
+}
+
+// Create a visualization message
+void Listener::publishLineSegments() {
+	visualization_msgs::Marker PG_lines, LC_lines;
+	PG_lines.ns = "PG";
+	PG_lines.action = visualization_msgs::Marker::ADD;
+	PG_lines.pose.orientation.w = 1.0;
+	PG_lines.id = 0;
+	PG_lines.type = visualization_msgs::Marker::LINE_STRIP;
+	PG_lines.scale.x = 0.1;
+	PG_lines.color.b = 1.0;				// Lines are red
+	PG_lines.color.a = 1.0;
+	PG_lines.header.frame_id = "/map";
+
+	LC_lines.ns = "PG";
+	LC_lines.action = visualization_msgs::Marker::ADD;
+	LC_lines.pose.orientation.w = 1.0;
+	LC_lines.id = 1;
+	LC_lines.type = visualization_msgs::Marker::LINE_LIST;
+	LC_lines.scale.x = 0.1;
+	LC_lines.color.r = 1.0;				// Lines are red
+	LC_lines.color.a = 1.0;
+	LC_lines.header.frame_id = "/map";
+
+	// Fill up the Pose Graph
+	for(int i=0; i<idx_PG; i++) {
+		geometry_msgs::Point p;
+		p.x = PG_opt(0,i);
+		p.y = PG_opt(1,i);
+		p.z = 0.0;
+		PG_lines.points.push_back(p);
+	}
+
+	// Fill up the Loop Closures
+	for(int i=0; i<idx_LC; i++) {
+		geometry_msgs::Point p1, p2;
+		p1.x = PG_opt(0,LC(0,i)-1);
+		p1.y = PG_opt(1,LC(0,i)-1);
+		p1.z = 0.0;
+		p2.x = PG_opt(0,LC(1,i)-1);
+		p2.y = PG_opt(1,LC(1,i)-1);
+		p2.z = 0.0;
+		LC_lines.points.push_back(p1);
+		LC_lines.points.push_back(p2);
+	}
+
+	// Publish the messages
+	pub_PGrviz.publish(PG_lines);
+	pub_PGrviz.publish(LC_lines);
 }
 
 int main(int argc, char **argv)

@@ -5,6 +5,7 @@
   <world name="default">
 	  
 	<physics name="ode_70iters" type="ode">
+	  <max_step_size>0.001</max_step_size>
       <real_time_update_rate>10000</real_time_update_rate>
       <ode>
         <solver>

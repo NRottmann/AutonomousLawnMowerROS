@@ -5,15 +5,33 @@
   <xacro:include filename="$(find simulation_environment)/models/lawn_mower/macros.xacro" />
   
   <!-- Odometry plugin to get messages from ROS and publish messages and control the motors of the wheels -->
-  <gazebo>
+  <!-- <gazebo>
 	  <plugin name="odometry_plugin" filename="libodometry_plugin.so">
 		<leftJoint>left_wheel_hinge</leftJoint>
 		<rightJoint>right_wheel_hinge</rightJoint>
 		<torque>${torque_wheel}</torque>
-		<diameter>${r_wheel*2}</diameter>
+		<radius>${r_wheel}</radius>
 		<axisDistance>${L_wheel}</axisDistance>
 	  </plugin>
-  </gazebo> 
+  </gazebo> -->
+  
+  <!-- Differential Drive controller from Gazebo -->
+  <gazebo>
+    <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
+      <alwaysOn>true</alwaysOn>
+      <updateRate>20</updateRate>
+      <leftJoint>left_wheel_hinge</leftJoint>
+      <rightJoint>right_wheel_hinge</rightJoint>
+      <wheelSeparation>${L_wheel*2}</wheelSeparation>
+      <wheelDiameter>${r_wheel*2}</wheelDiameter>
+      <torque>${torque_wheel}</torque>
+      <commandTopic>gazebo_cmd_vel</commandTopic>
+      <odometryTopic>gazebo_odom</odometryTopic>
+      <odometryFrame>odom_link</odometryFrame>
+      <robotBaseFrame>chassis</robotBaseFrame>
+      <legacyMode>false</legacyMode>
+    </plugin>
+  </gazebo>
   
   <!-- Camera sensor plugins -->
   <gazebo reference="camera_link_mid">

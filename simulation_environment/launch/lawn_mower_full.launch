@@ -30,5 +30,10 @@
    
    <!-- Launch ROS node to transform image data to chlorophyll message -->
    <node pkg="simulation_environment" name="sensor_transform" type="sensor_transform" output="screen"/>
+   
+   <!-- Launch ROS node for transform the odometry data -->
+   <node pkg="simulation_environment" name="odometry_transform" type="odometry_transform" output="screen" >
+		<rosparam command="load" file="$(find simulation_environment)/config/props.yaml"/>
+   </node>
 
 </launch>

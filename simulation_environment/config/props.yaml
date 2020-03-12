@@ -4,5 +4,8 @@ z_chassis: 0.15
 m_chassis: 5.0
 r_wheel: 0.1075
 L_wheel: 0.1788
+X_wheel: 0.08
 h_wheel: 0.0376
+m_wheel: 5.0
+torque_wheel: 100.0
 l_camera: 0.02

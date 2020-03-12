@@ -16,10 +16,9 @@
   <xacro:property name="r_wheel" 		value="${props['r_wheel']}" />
   <xacro:property name="h_wheel" 		value="${props['h_wheel']}" />
   <xacro:property name="L_wheel" 		value="${props['L_wheel']}" />
-  
-  <!-- TODO: To stable the simulation we had to take a much higher mass value as would be realistic -->
-  <xacro:property name="m_wheel" 		value="5" /> 
-  <xacro:property name="torque_wheel" 	value="100" />
+  <xacro:property name="X_wheel"		value="${props['X_wheel']}" />
+  <xacro:property name="m_wheel" 		value="${props['m_wheel']}" />
+  <xacro:property name="torque_wheel" 	value="${props['torque_wheel']}" />
   
   <!-- Camera parameter -->
   <xacro:property name="l_camera" 		value="${props['l_camera']}" /> 

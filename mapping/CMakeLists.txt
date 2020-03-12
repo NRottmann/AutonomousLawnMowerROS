@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  visualization_msgs
   message_generation
 )
 
@@ -22,6 +23,7 @@ add_message_files(
 generate_messages(
   DEPENDENCIES
   std_msgs
+  visualization_msgs
 )
 
 ## Declare a catkin package
@@ -29,6 +31,7 @@ catkin_package(
   CATKIN_DEPENDS
     interfaces
     std_msgs
+    visualization_msgs
     message_runtime
   DEPENDS
     EIGEN3
