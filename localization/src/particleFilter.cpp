@@ -6,6 +6,7 @@
 #include <std_msgs/String.h>
 #include <std_msgs/Empty.h>
 #include <nav_msgs/OccupancyGrid.h>
+#include <visualization_msgs/Marker.h>
 #include <interfaces/IMU.h>
 #include <interfaces/Odometry.h>
 #include <interfaces/Sensor.h>
@@ -27,18 +28,17 @@ class ParticleFilter
         interfaces::Odometry msg_odometry;
         // TODO: We need to options: (1) Give a predefined position, (2) No positions at all, all particles equally distributed
         Vector3f pos0;
-        float L = 0.1826;
+        float L = 0.1826f;
         // TODO: Parameter in config
-        float A[4] = { 0.0849, 0.0412, 0.0316, 0.0173 };
+        float A[4] = { 0.0849f, 0.0412f, 0.0316f, 0.0173f };
         float DeltaR1;
         float DeltaT;
         float DeltaR2;
 
-        int mapMsg[];
         nav_msgs::OccupancyGrid map;
 
-        int n_P;
-        int threshholdReampling;
+        unsigned int n_P;
+        float threshholdReampling;
         MatrixXf Particles;
         MatrixXi ParticleMeasurements;
         Vector2f posLeftSensor;
@@ -51,40 +51,67 @@ class ParticleFilter
         void resampleParticles();
         void estimatePose();
         void getOccupancyGrid();
-        bool inPolygon(double x, double y);
+        bool inPolygon(float x, float y);
         void odometryData(Vector3f pos0, float l_R, float l_L);
+        void publishVizParticles();
         ros::Subscriber sub_odometry;
         ros::Subscriber sub_sensor;
         ros::Publisher posePub;
+        ros::Publisher particlePub;
 };
 
 ParticleFilter::ParticleFilter(ros::NodeHandle nh, ros::NodeHandle nhp) {
 	  sub_odometry = nh.subscribe("odometryData", 1000, &ParticleFilter::callbackOdometry, this);
     sub_sensor = nh.subscribe("sensorData", 1000, &ParticleFilter::callbackSensor, this);
-    posePub = nh.advertise<localization::Pose>("particleFilterPose", 1000);
+    posePub = nh.advertise<localization::Pose>("particleFilterPose", 20);
+    particlePub = nh.advertise<visualization_msgs::Marker>("particlePositions",20);
     pos0 = Vector3f::Zero();
 
     n_P = 100;
-    threshholdReampling = 0.9;
+    threshholdReampling = 0.9f;
 
     Particles = MatrixXf::Zero(n_P, 4);
     ParticleMeasurements = MatrixXi::Zero(n_P, 2);
     initParticles();
 
-    posRightSensor << 0.265, -0.09;
-    posLeftSensor << 0.265, 0.09;
+    posRightSensor << 0.265f, -0.09f;
+    posLeftSensor << 0.265f, 0.09f;
 
     getOccupancyGrid();
 }
 
 void ParticleFilter::callbackOdometry(const interfaces::Odometry::ConstPtr& msg_in)
 {
-  firstTimeOdom = true;
+    firstTimeOdom = true;
     interfaces::Odometry msg_new = *msg_in;
-    float l_R = msg_new.l_R;
-    float l_L = msg_new.l_L;
-    // Generate Deltas from the odometry data
-    odometryData(pos0, l_R, l_L);
+
+    // Update the pose
+    // TODO: Change this dirty fix
+    if (fabsf(msg_new.l_L) > 0.2f)
+      msg_new.l_L = 0.0f;
+    if (fabsf(msg_new.l_R) > 0.2f)
+      msg_new.l_R = 0.0f;
+    Vector2f deltaOdo;
+    deltaOdo << ((msg_new.l_R + msg_new.l_L) / 2),
+          ((msg_new.l_R - msg_new.l_L) / (2 * L));
+    MatrixXf R(3, 2);
+    R << 1, 0,
+         0, 0,
+         0, 1;
+    Vector3f dp;
+    dp = R*deltaOdo;
+
+    // TODO: Check this!
+    if (deltaOdo(0) >= 0) {
+      DeltaT = sqrtf(dp[0]*dp[0]+dp[1]*dp[1]);
+      DeltaR1 = 0.5f * dp[2];
+      DeltaR2 = dp[2] - DeltaR1;
+    } else {
+      DeltaT = -sqrtf(dp[0]*dp[0]+dp[1]*dp[1]);
+      DeltaR1 = 0.5f * dp[2];
+      DeltaR2 = dp[2] - DeltaR1;
+    }
+
     // Update Particle Poses
     updateParticles();
     // Publish pose estimate
@@ -120,25 +147,25 @@ void ParticleFilter::callbackSensor(const interfaces::Sensor::ConstPtr& msg_in)
 
 void ParticleFilter::getOccupancyGrid() {
   // TODO: Load Occupancy Grid from Topic on request!
-  map.info.resolution = 0.1;
-  map.info.width = (int)(12 / map.info.resolution);
-	map.info.height = (int)(12 / map.info.resolution);
+  map.info.resolution = 0.1f;
+  map.info.width = static_cast<unsigned int>(12 / map.info.resolution);
+  map.info.height = static_cast<unsigned int>(12 / map.info.resolution);
 	map.info.origin.position.x =  -6;							//origin : The 2-D pose of the lower-left pixel in the map
 	map.info.origin.position.y = -6;
-	map.info.origin.orientation.w = 1.0f;
+  map.info.origin.orientation.w = 1.0;
   // Resize the data structure
 	map.data.resize(map.info.width*map.info.height);
   // Check which points are inside the polygon
-  double x0 = -6;
-  double y0 = -6;
-  for(int jx=0; jx<map.info.width; jx++) {
-    for(int jy=0; jy<map.info.height; jy++) {
+  float x0 = -6;
+  float y0 = -6;
+  for(unsigned int jx=0; jx<map.info.width; jx++) {
+    for(unsigned int jy=0; jy<map.info.height; jy++) {
       // Check all positions
-      int idx = jx + jy*map.info.width;
+      unsigned int idx = jx + jy*map.info.width;
       if(inPolygon(x0+jx*map.info.resolution, y0+jy*map.info.resolution)) {
-        map.data[idx] = (unsigned char) 0x01;
+        map.data[idx] = static_cast<unsigned char>(0x01);
       } else {
-        map.data[idx] = (unsigned char) 0x00;
+        map.data[idx] = static_cast<unsigned char>(0x00);
       }
     }
   }
@@ -146,7 +173,7 @@ void ParticleFilter::getOccupancyGrid() {
 
 void ParticleFilter::initParticles()
 {
-    for (int i = 0; i < n_P; i++) {
+    for (unsigned int i = 0; i < n_P; i++) {
         Particles(i,0) = pos0(0);
         Particles(i,1) = pos0(1);
         Particles(i,2) = pos0(2);
@@ -156,13 +183,9 @@ void ParticleFilter::initParticles()
 
 void ParticleFilter::updateParticles()
 {
-
-    for (int i = 0; i < n_P; i++) {
+    for (unsigned int i = 0; i < n_P; i++) {
         // update particles and noise them
-        Vector3f odomPose = odometryPose(pos0);
-        Particles(i,0) = odomPose(0);
-        Particles(i,1) = odomPose(1);
-        Particles(i,2) = odomPose(2);
+        Particles.block(i,0,1,3) = odometryPose(Particles.block(i,0,1,3).transpose()).transpose();
 
         // fill simulated measurements
         Matrix2f R;
@@ -171,29 +194,31 @@ void ParticleFilter::updateParticles()
         Vector2f pos = Particles.block(i,0,1,2).transpose();
         Vector2f pR = pos + R*posRightSensor;
         Vector2f pL = pos + R*posLeftSensor;
-        int idx_pR = (int)floor((pR(0) - map.info.origin.position.x)/map.info.resolution);
-        int idy_pR = (int)floor((pR(1) - map.info.origin.position.y)/map.info.resolution);
-        int idx_pL = (int)floor((pL(0) - map.info.origin.position.x)/map.info.resolution);
-        int idy_pL = (int)floor((pL(1) - map.info.origin.position.y)/map.info.resolution);
+        unsigned int idx_pR = static_cast<unsigned char>(floorf((pR(0) - static_cast<float>(map.info.origin.position.x))/map.info.resolution));
+        unsigned int idy_pR = static_cast<unsigned char>(floorf((pR(1) - static_cast<float>(map.info.origin.position.y))/map.info.resolution));
+        unsigned int idx_pL = static_cast<unsigned char>(floorf((pL(0) - static_cast<float>(map.info.origin.position.x))/map.info.resolution));
+        unsigned int idy_pL = static_cast<unsigned char>(floorf((pL(1) - static_cast<float>(map.info.origin.position.y))/map.info.resolution));
 
         ParticleMeasurements(i,0) = map.data[idx_pR + map.info.width * idy_pR];
         ParticleMeasurements(i,1) = map.data[idx_pL + map.info.width * idy_pL];
     }
-  }
+    publishVizParticles();
+}
+
 
 float ParticleFilter::weightParticles(int sensorData[2]) {
 
     float weightSum = 0;
-    for (int i = 0; i < n_P; i = i+1) {
+    for (unsigned int i = 0; i < n_P; i = i+1) {
         // update weights
         int w1 = 1 - abs(sensorData[0] - ParticleMeasurements(i,0));
         int w2 = 1 - abs(sensorData[1] - ParticleMeasurements(i,1));
-        Particles(i,3) = ((w1+w2)/2)+0.1;
+        Particles(i,3) = ((w1+w2)/2)+0.1f;
         weightSum = weightSum + Particles(i,3);
     }
 
     float squareSum = 0;
-    for (int i = 0; i < n_P; i = i+1) {
+    for (unsigned int i = 0; i < n_P; i = i+1) {
         Particles(i,3) = Particles(i,3)/weightSum;
         squareSum = squareSum + (Particles(i,3)*Particles(i,3));
     }
@@ -209,8 +234,8 @@ void ParticleFilter::resampleParticles() {
     //       https://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
     // Add also later systematic resampling adden
 
-    std::vector<float> weightVec(n_P+1, 0.0);
-    for(int i = 0; i < n_P; i = i+1){
+    std::vector<float> weightVec(n_P+1, 0.0f);
+    for(unsigned int i = 0; i < n_P; i++){
         weightVec[i+1] = weightVec[i] + Particles(i,3);
     }
         /*VectorXf X = VectorXf::Zero(n_P);
@@ -225,7 +250,7 @@ void ParticleFilter::resampleParticles() {
     std::default_random_engine gen;
     std::discrete_distribution<int> d(weightVec.begin(), weightVec.end());
     MatrixXf resampled_Particles = MatrixXf::Zero(n_P, 4);
-    for(int i = 0; i < n_P; i++){
+    for(unsigned int i = 0; i < n_P; i++){
         int idx = d(gen);
         resampled_Particles.block(i,0,1,4) = Particles.block(idx-1,0,1,4);
     }
@@ -235,8 +260,8 @@ void ParticleFilter::resampleParticles() {
 void ParticleFilter::odometryData(Vector3f pos0, float l_R, float l_L)
 {
   // TODO: USe always [0,0,0] as staring position for determine the Deltas
-    float ds = (l_R - l_L) / 2;
-    float dphi = (l_R + l_L) / (2*L);
+    float ds = (l_R + l_L) / 2;
+    float dphi = (l_R - l_L) / (2*L);
     Vector2f d;
     d << ds,
          dphi;
@@ -249,14 +274,14 @@ void ParticleFilter::odometryData(Vector3f pos0, float l_R, float l_L)
     if (ds >= 0) {
         DeltaR1 = atan2f(dp[1], dp[0]-pos0[2]);
         DeltaT = sqrtf(dp[0]*dp[1]+dp[1]*dp[1]);
-        if (fabs(DeltaR1) > fabs(dp[2]))
-            DeltaR1 = 0.5 * dp[2];
+        if (fabsf(DeltaR1) > fabsf(dp[2]))
+            DeltaR1 = 0.5f * dp[2];
         DeltaR2 = dp[2] - DeltaR1;
     } else {
         DeltaR1 = atan2f(-dp[1], -dp[0]-pos0[2]);
         DeltaT = -sqrtf(dp[0]*dp[0]+dp[1]*dp[1]);
-        if (fabs(DeltaR1) > fabs(dp[2]))
-            DeltaR1 = 0.5 * dp[2];
+        if (fabsf(DeltaR1) > fabsf(dp[2]))
+            DeltaR1 = 0.5f * dp[2];
         DeltaR2 = dp[2] - DeltaR1;
     }
 }
@@ -265,13 +290,13 @@ Vector3f ParticleFilter::odometryPose(Vector3f pos0)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<float> d(0, A[0]*abs(DeltaR1) + A[1]*DeltaT);
+    std::normal_distribution<float> d(0, A[0]*fabsf(DeltaR1) + A[1]*DeltaT);
     float sample = d(gen);
     float dR1 = DeltaR1 + sample;
-    std::normal_distribution<float> b(0, A[2]*DeltaT + A[3]*abs(DeltaR1+DeltaR2));
+    std::normal_distribution<float> b(0, A[2]*DeltaT + A[3]*fabsf(DeltaR1+DeltaR2));
     sample = b(gen);
     float dT = DeltaT + sample;
-    std::normal_distribution<float> c(0, A[0]*abs(DeltaR2) + A[1]*DeltaT);
+    std::normal_distribution<float> c(0, A[0]*fabsf(DeltaR2) + A[1]*DeltaT);
     sample = c(gen);
     float dR2 = DeltaR2 + sample;
     Vector2f delta;
@@ -294,7 +319,7 @@ void ParticleFilter::estimatePose() {
 }
 
 // Check if a point
-bool ParticleFilter::inPolygon(double x, double y) {
+bool ParticleFilter::inPolygon(float x, float y) {
   // Define polygon structure for the map
   MatrixXf polygons = MatrixXf::Zero(2,6);
   polygons << -5, 5, 5, 1, 1, -5,
@@ -308,6 +333,29 @@ bool ParticleFilter::inPolygon(double x, double y) {
        c = !c;
   }
   return c;
+}
+
+void ParticleFilter::publishVizParticles() {
+  visualization_msgs::Marker points;
+  points.header.frame_id = "/map";
+  points.header.stamp = ros::Time::now();
+  points.ns = "particleFilter";
+  points.action = visualization_msgs::Marker::ADD;
+  points.pose.orientation.w = 1.0;
+  points.id = 0;
+  points.type = visualization_msgs::Marker::POINTS;
+  points.scale.x = 0.2;
+  points.scale.y = 0.2;
+  points.color.r = 1.0;
+  points.color.a = 1.0;
+  for (unsigned int i=0; i<n_P; i++) {
+    geometry_msgs::Point p;
+    p.x = static_cast<double>(Particles(i,0));
+    p.y = static_cast<double>(Particles(i,1));
+    p.z = 0.0;
+    points.points.push_back(p);
+  }
+  particlePub.publish(points);
 }
 
 int main(int argc, char **argv)
