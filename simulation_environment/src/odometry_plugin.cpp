@@ -142,8 +142,8 @@ namespace gazebo
 	  this->jointRight->SetParam("vel", 0, velRight);
 	  this->jointLeft->SetParam("vel", 0, velLeft);
 	  // Get position of the wheels
-	  double posLeft = this->jointLeft->GetAngle(0).Radian();
-	  double posRight = this->jointRight->GetAngle(0).Radian();
+	  double posLeft = this->jointLeft->Position(0);
+	  double posRight = this->jointRight->Position(0);
       // Publish to rostopic odometryData
       interfaces::Odometry msg_out;
       msg_out.l_R = radius * (posRight - posRightOld);

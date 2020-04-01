@@ -6,7 +6,6 @@
 #include "std_msgs/String.h"
 #include "interfaces/Sensor.h"
 #include <string.h>
-#include <gazebo/math/gzmath.hh>
 
 namespace gazebo
 {
@@ -84,14 +83,14 @@ namespace gazebo
     public: void OnUpdate()
     {
 	  // Get pose
-	  math::Pose pose = model->GetWorldPose();
+	  ignition::math::Pose3d pose = model->WorldPose();
       // Publish to rostopic sensorData, TODO: add noise
       interfaces::Sensor msg;
-      math::Vector3 eulerAngles = pose.rot.GetAsEuler();
-	  double x_r = pose.pos.x + cos(eulerAngles.z)*x_pos + sin(eulerAngles.z)*y_pos;
-	  double y_r = pose.pos.y - cos(eulerAngles.z)*y_pos + sin(eulerAngles.z)*x_pos;
-	  double x_l = pose.pos.x + cos(eulerAngles.z)*x_pos - sin(eulerAngles.z)*y_pos;
-	  double y_l = pose.pos.y + cos(eulerAngles.z)*y_pos + sin(eulerAngles.z)*x_pos;
+      ignition::math::Vector3d eulerAngles = pose.Rot().Euler();
+	  double x_r = pose.Pos().X() + cos(eulerAngles.Z())*x_pos + sin(eulerAngles.Z())*y_pos;
+	  double y_r = pose.Pos().Y() - cos(eulerAngles.Z())*y_pos + sin(eulerAngles.Z())*x_pos;
+	  double x_l = pose.Pos().X() + cos(eulerAngles.Z())*x_pos - sin(eulerAngles.Z())*y_pos;
+	  double y_l = pose.Pos().Y() + cos(eulerAngles.Z())*y_pos + sin(eulerAngles.Z())*x_pos;
       if (pnpoly(nvert, x_map, y_map, x_r, y_r))
         msg.right = 200;
       else
