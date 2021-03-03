@@ -37,7 +37,7 @@ int main (int argc, char** argv){
 	// Try to initialize the right serial connection and catch errors
     try
     {
-        serRight.setPort("/dev/sensor03");
+        serRight.setPort("/dev/sensor02");
         serRight.setBaudrate(9600);
         serial::Timeout to = serial::Timeout::simpleTimeout(1000);
         serRight.setTimeout(to);
@@ -58,7 +58,7 @@ int main (int argc, char** argv){
 	// Try to initialize the left serial connection and catch errors
 	try
 	{
-		serLeft.setPort("/dev/sensor02");
+		serLeft.setPort("/dev/sensor03");
 		serLeft.setBaudrate(9600);
 		serial::Timeout to = serial::Timeout::simpleTimeout(1000);
 		serLeft.setTimeout(to);
@@ -79,7 +79,7 @@ int main (int argc, char** argv){
 	}
 	// Start receiving the messages and publish them
 	double frequency;
-	if (!nhp.getParam("system/frequency", frequency)) ROS_ERROR("Could not find system/frequency parameter!");
+	if (!nhp.getParam("system/frequencySen", frequency)) ROS_ERROR("Could not find system/frequencySen parameter!");
 	ros::Rate loop_rate(frequency);
     while(ros::ok()){
 		// Get data from the sensors

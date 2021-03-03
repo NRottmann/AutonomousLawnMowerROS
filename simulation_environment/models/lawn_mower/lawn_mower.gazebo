@@ -4,17 +4,6 @@
   <xacro:include filename="$(find simulation_environment)/models/lawn_mower/parameter.xacro" />
   <xacro:include filename="$(find simulation_environment)/models/lawn_mower/macros.xacro" />
   
-  <!-- Odometry plugin to get messages from ROS and publish messages and control the motors of the wheels -->
-  <!-- <gazebo>
-	  <plugin name="odometry_plugin" filename="libodometry_plugin.so">
-		<leftJoint>left_wheel_hinge</leftJoint>
-		<rightJoint>right_wheel_hinge</rightJoint>
-		<torque>${torque_wheel}</torque>
-		<radius>${r_wheel}</radius>
-		<axisDistance>${L_wheel}</axisDistance>
-	  </plugin>
-  </gazebo> -->
-  
   <!-- Differential Drive controller from Gazebo -->
   <gazebo>
     <plugin name="differential_drive_controller" filename="libgazebo_ros_diff_drive.so">
@@ -45,14 +34,6 @@
   <gazebo reference="camera_link_right">
     <xacro:sensor_plugin_macro name="camera_right" topic_name="image_raw" info_name="camera_info" frame_name="camera_link_right"/>
   </gazebo>
-  
-  <!-- ChlorophyllSensor Plugin, outdated since we use now cameras -->
-  <!-- <gazebo>
-	  <plugin name="chlorophyllSensor_plugin" filename="libchlorophyllSensor_plugin.so" >
-		  <x_pos>${x_chassis/2}</x_pos>
-		  <y_pos>0.0</y_pos>
-	  </plugin>
-  </gazebo> -->
   
   <!-- Chassis color -->
   <gazebo reference="chassis">

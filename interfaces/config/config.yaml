@@ -8,11 +8,12 @@ system:
  frequency: 20        # frequency of the ROS System in Hz
  frequencyIMU: 100    # frequency of the IMU (see data sheet)
  frequencyLoc: 200    # frequency of the localization, should be faster then the IMU frequency
+ frequencySen: 1000
 control:
  vChange: 0.05        # Change of velocity per time step
  wChange: 0.05        # Change of angular velocity per time step
  bumperTreshold: 3.0  # Treshold for Bumper
- sensorTreshold: 1    # Treshold for sensor until a detection is assumed
+ sensorTreshold: 80   # Treshold for sensor until a detection is assumed
  v0: 0.3              # Speed Limit used by the controller
  w0: 0.6              # Angular velocity limit used by the controller
  Pv: 1                # Proportional control value for the velocity
